@@ -1,6 +1,7 @@
-import React from "react";
-import { useLocation, useMatches } from "@remix-run/react";
-import type { MetaFunction } from "@remix-run/node";
+import React from 'react'
+
+import type { MetaFunction } from '@remix-run/node'
+import { useLocation, useMatches } from '@remix-run/react'
 import {
   Links,
   LiveReload,
@@ -8,50 +9,52 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "@remix-run/react";
-let isMount = true;
+} from '@remix-run/react'
+
+let isMount = true
 export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "New Remix App",
-  viewport: "width=device-width,initial-scale=1",
-});
+  charset: 'utf-8',
+  title: 'New Remix App',
+  viewport: 'width=device-width,initial-scale=1',
+})
 export default function App() {
-  let location = useLocation();
-  let matches = useMatches();
+  let location = useLocation()
+  let matches = useMatches()
 
   React.useEffect(() => {
-    let mounted = isMount;
-    isMount = false;
-    if ("serviceWorker" in navigator) {
+    let mounted = isMount
+    isMount = false
+    if ('serviceWorker' in navigator) {
       if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller?.postMessage({
-          type: "REMIX_NAVIGATION",
+          type: 'REMIX_NAVIGATION',
           isMount: mounted,
           location,
           matches,
           manifest: window.__remixManifest,
-        });
+        })
       } else {
         let listener = async () => {
-          await navigator.serviceWorker.ready;
+          await navigator.serviceWorker.ready
           navigator.serviceWorker.controller?.postMessage({
-            type: "REMIX_NAVIGATION",
+            type: 'REMIX_NAVIGATION',
             isMount: mounted,
             location,
             matches,
             manifest: window.__remixManifest,
-          });
-        };
-        navigator.serviceWorker.addEventListener("controllerchange", listener);
+          })
+        }
+        navigator.serviceWorker.addEventListener('controllerchange', listener)
         return () => {
           navigator.serviceWorker.removeEventListener(
-            "controllerchange",
-            listener
-          );
-        };
+            'controllerchange',
+            listener,
+          )
+        }
       }
     }
-  }, [location]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location])
 
   return (
     <html lang="en">
@@ -64,5 +67,5 @@ export default function App() {
         <Outlet /> <ScrollRestoration /> <Scripts /> <LiveReload />
       </body>
     </html>
-  );
+  )
 }
