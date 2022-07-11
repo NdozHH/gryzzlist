@@ -1,5 +1,14 @@
 {
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "remix.env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "remix.config.js",
+    "./app/**/*.tsx",
+    "./app/**/*.ts",
+    "./prisma/**/*.ts",
+    "./.eslintrc.js"
+  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2019"],
     "isolatedModules": true,
@@ -13,7 +22,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "~/db/*": ["prisma/*"]
     },
 
     // Remix takes care of building everything in `remix build`.
