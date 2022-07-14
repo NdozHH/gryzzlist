@@ -1,0 +1,46 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-size: 1rem;
+}
+
+body {
+  transition-property: background-color, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
+}
+::-webkit-scrollbar-thumb {
+  background: #909296;
+  border: none;
+  border-radius: 2.5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a6a7ab;
+}
+::-webkit-scrollbar-thumb:active {
+  background: #a6a7ab;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+  border: none;
+  border-radius: 2.5px;
+}
+::-webkit-scrollbar-track:hover {
+  background: transparent;
+}
+::-webkit-scrollbar-track:active {
+  background: transparent;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

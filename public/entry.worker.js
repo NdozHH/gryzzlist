@@ -174,7 +174,10 @@ self.addEventListener("fetch", (event) => {
     return appHandleFetch(event, result);
   })());
 });
-async function appHandleFetch(event, { error, response }) {
+async function appHandleFetch(event, {
+  error,
+  response
+}) {
   return response;
 }
 /**

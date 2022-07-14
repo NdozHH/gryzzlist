@@ -14,8 +14,8 @@
  */
 
 interface ResponseObject {
-  status: "success" | "bad";
-  message: string;
+  status: 'success' | 'bad'
+  message: string
 }
 
 // Clipboard Copy API
@@ -29,20 +29,20 @@ interface ResponseObject {
 export async function copyText(text: string): Promise<ResponseObject> {
   try {
     if (navigator.clipboard) {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(text)
       return {
-        status: "success",
-        message: "Copied to clipboard",
-      };
+        status: 'success',
+        message: 'Copied to clipboard',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Your browser does not support clipboard API",
-      };
+        status: 'bad',
+        message: 'Your browser does not support clipboard API',
+      }
     }
   } catch (err) {
-    console.debug(err);
-    throw new Error("Unable to copy text to clipboard!");
+    console.debug(err)
+    throw new Error('Unable to copy text to clipboard!')
   }
 }
 
@@ -55,24 +55,27 @@ export async function copyText(text: string): Promise<ResponseObject> {
  * @param {() => void} offline - A function to be invoked if the device is not connected to an internet network.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function checkConnectivity(online: () => void, offline: () => void): Promise<ResponseObject> {
+export async function checkConnectivity(
+  online: () => void,
+  offline: () => void,
+): Promise<ResponseObject> {
   try {
     if (navigator.onLine) {
-      online();
+      online()
       return {
-        status: "success",
-        message: "Connected to the internet",
-      };
+        status: 'success',
+        message: 'Connected to the internet',
+      }
     } else {
-      offline();
+      offline()
       return {
-        status: "bad",
-        message: "No internet connection available",
-      };
+        status: 'bad',
+        message: 'No internet connection available',
+      }
     }
   } catch (err) {
-    console.debug(err);
-    throw new Error("Unable to check network connectivity!");
+    console.debug(err)
+    throw new Error('Unable to check network connectivity!')
   }
 }
 
@@ -85,31 +88,31 @@ export async function checkConnectivity(online: () => void, offline: () => void)
  */
 export async function WakeLock(): Promise<ResponseObject> {
   try {
-    if ("wakeLock" in navigator) {
+    if ('wakeLock' in navigator) {
       // This is an experimental feature!
 
       //@ts-ignore
-      const wakelock = navigator.wakeLock.request("screen");
+      const wakelock = navigator.wakeLock.request('screen')
       if (wakelock) {
         return {
-          status: "success",
-          message: "WakeLock activated!",
-        };
+          status: 'success',
+          message: 'WakeLock activated!',
+        }
       } else {
         return {
-          status: "bad",
-          message: "WakeLock activation failed!",
-        };
+          status: 'bad',
+          message: 'WakeLock activation failed!',
+        }
       }
     } else {
       return {
-        status: "bad",
-        message: "Your browser does not support WakeLock API!",
-      };
+        status: 'bad',
+        message: 'Your browser does not support WakeLock API!',
+      }
     }
   } catch (err) {
-    console.debug(err);
-    throw new Error("Error activating WakeLock!");
+    console.debug(err)
+    throw new Error('Error activating WakeLock!')
   }
 }
 
@@ -126,20 +129,20 @@ export async function addBadge(numberCount: number): Promise<ResponseObject> {
     //@ts-ignore
     if (navigator.setAppBadge) {
       //@ts-ignore
-      await navigator.setAppBadge(numberCount);
+      await navigator.setAppBadge(numberCount)
       return {
-        status: "success",
-        message: "Badge successfully added",
-      };
+        status: 'success',
+        message: 'Badge successfully added',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Badging API not supported",
-      };
+        status: 'bad',
+        message: 'Badging API not supported',
+      }
     }
   } catch (err) {
-    console.debug(err);
-    throw new Error("Error adding badge!");
+    console.debug(err)
+    throw new Error('Error adding badge!')
   }
 }
 
@@ -155,20 +158,20 @@ export async function removeBadge(): Promise<ResponseObject> {
     //@ts-ignore
     if (navigator.clearAppBadge) {
       //@ts-ignore
-      await navigator.clearAppBadge();
+      await navigator.clearAppBadge()
       return {
-        status: "success",
-        message: "Cleared badges",
-      };
+        status: 'success',
+        message: 'Cleared badges',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Badging API not supported in this browser!",
-      };
+        status: 'bad',
+        message: 'Badging API not supported in this browser!',
+      }
     }
   } catch (error) {
-    console.debug(error);
-    throw new Error("Error removing badge!");
+    console.debug(error)
+    throw new Error('Error removing badge!')
   }
 }
 
@@ -182,20 +185,20 @@ export async function removeBadge(): Promise<ResponseObject> {
 export async function EnableFullScreenMode(): Promise<ResponseObject> {
   try {
     if (document.fullscreenEnabled) {
-      document.documentElement.requestFullscreen();
+      document.documentElement.requestFullscreen()
       return {
-        status: "success",
-        message: "Fullscreen mode activated",
-      };
+        status: 'success',
+        message: 'Fullscreen mode activated',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Fullscreen mode not supported",
-      };
+        status: 'bad',
+        message: 'Fullscreen mode not supported',
+      }
     }
   } catch (err) {
-    console.debug(err);
-    throw new Error("Error activating fullscreen mode!");
+    console.debug(err)
+    throw new Error('Error activating fullscreen mode!')
   }
 }
 
@@ -209,31 +212,31 @@ export async function EnableFullScreenMode(): Promise<ResponseObject> {
 export async function ExitFullScreenMode(): Promise<ResponseObject> {
   try {
     if (document.exitFullscreen) {
-      document.exitFullscreen();
+      document.exitFullscreen()
       return {
-        status: "success",
-        message: "Fullscreen mode deactivated",
-      };
+        status: 'success',
+        message: 'Fullscreen mode deactivated',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Fullscreen mode not supported",
-      };
+        status: 'bad',
+        message: 'Fullscreen mode not supported',
+      }
     }
   } catch (err) {
-    console.debug(err);
-    throw new Error("Error deactivating fullscreen mode!");
+    console.debug(err)
+    throw new Error('Error deactivating fullscreen mode!')
   }
 }
 
 // Send a client notification to the user
 
 interface NotificationOptions {
-  body: string | "Notification body";
-  badge?: string;
-  icon?: string;
-  image?: string;
-  silent: boolean | false;
+  body: string | 'Notification body'
+  badge?: string
+  icon?: string
+  image?: string
+  silent: boolean | false
 }
 
 /**
@@ -243,41 +246,48 @@ interface NotificationOptions {
  * @param {NotificationOptions} options - An object consisting of the notification's body, badge, icon, image, and silent options. Refer to https://github.com/ShafSpecs/remix-pwa#client-notification-api for additional info.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function SendNotification(title: string, options: NotificationOptions): Promise<ResponseObject> {
+export async function SendNotification(
+  title: string,
+  options: NotificationOptions,
+): Promise<ResponseObject> {
   try {
-    if ("Notification" in window) {
-      const permissions = await (await navigator.permissions.query({ name: "notifications" })).state;
-      navigator.permissions.query({ name: "notifications" }).then((permissionStatus) => {
-        if (permissionStatus.state === "granted") {
-          return;
-        } else {
-          return Notification.requestPermission();
-        }
-      });
+    if ('Notification' in window) {
+      const permissions = await (
+        await navigator.permissions.query({ name: 'notifications' })
+      ).state
+      navigator.permissions
+        .query({ name: 'notifications' })
+        .then(permissionStatus => {
+          if (permissionStatus.state === 'granted') {
+            return
+          } else {
+            return Notification.requestPermission()
+          }
+        })
 
-      if (permissions === "granted") {
-        await navigator.serviceWorker.ready.then((registration) => {
-          registration.showNotification(title, options);
+      if (permissions === 'granted') {
+        await navigator.serviceWorker.ready.then(registration => {
+          registration.showNotification(title, options)
           return {
-            status: "success",
-            message: "Sent Notification to user successfully",
-          };
-        });
+            status: 'success',
+            message: 'Sent Notification to user successfully',
+          }
+        })
       } else {
         return {
-          status: "bad",
-          message: "Denied access to sending notifications!",
-        };
+          status: 'bad',
+          message: 'Denied access to sending notifications!',
+        }
       }
     } else {
       return {
-        status: "bad",
-        message: "Notification API not supported",
-      };
+        status: 'bad',
+        message: 'Notification API not supported',
+      }
     }
   } catch (error) {
-    console.debug(error);
-    throw new Error("Error sending notification!");
+    console.debug(error)
+    throw new Error('Error sending notification!')
   }
 }
 
@@ -290,33 +300,36 @@ export async function SendNotification(title: string, options: NotificationOptio
  * @param {() => void} notVisible - A function to be invoked if the element is not visible on the current page.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function Visibility(isVisible: () => void, notVisible: () => void): Promise<ResponseObject> {
+export async function Visibility(
+  isVisible: () => void,
+  notVisible: () => void,
+): Promise<ResponseObject> {
   try {
     if (document.visibilityState) {
-      const visibleState = document.visibilityState;
+      const visibleState = document.visibilityState
 
-      if (visibleState === "visible") {
-        isVisible();
+      if (visibleState === 'visible') {
+        isVisible()
         return {
-          status: "success",
-          message: "Page is focused and being viewed!",
-        };
+          status: 'success',
+          message: 'Page is focused and being viewed!',
+        }
       } else {
-        notVisible();
+        notVisible()
         return {
-          status: "bad",
-          message: "Page is not currently being viewed!",
-        };
+          status: 'bad',
+          message: 'Page is not currently being viewed!',
+        }
       }
     }
 
     return {
-      status: "bad",
-      message: "Page focus API not supported",
-    };
+      status: 'bad',
+      message: 'Page focus API not supported',
+    }
   } catch (err) {
-    console.debug(err);
-    throw new Error("Error checking page visibility!");
+    console.debug(err)
+    throw new Error('Error checking page visibility!')
   }
 }
 
@@ -331,25 +344,25 @@ export async function Visibility(isVisible: () => void, notVisible: () => void):
 export async function copyImage(url: string): Promise<ResponseObject> {
   try {
     if (navigator.clipboard) {
-      const data = await fetch(url);
-      const fileBlob = await data.blob();
+      const data = await fetch(url)
+      const fileBlob = await data.blob()
       await navigator.clipboard.write([
         new ClipboardItem({
           [fileBlob.type]: fileBlob,
         }),
-      ]);
+      ])
       return {
-        status: "success",
-        message: "Image copied successfully successfully!",
-      };
+        status: 'success',
+        message: 'Image copied successfully successfully!',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Copy Image API not supported on your device!",
-      };
+        status: 'bad',
+        message: 'Copy Image API not supported on your device!',
+      }
     }
   } catch (err) {
-    throw new Error("Error occured while copying image to clipboard!");
+    throw new Error('Error occured while copying image to clipboard!')
   }
 }
 
@@ -364,19 +377,19 @@ export async function copyImage(url: string): Promise<ResponseObject> {
 export async function WebShare(data: any): Promise<ResponseObject> {
   try {
     if (navigator.share && navigator.canShare(data)) {
-      await navigator.share(data);
+      await navigator.share(data)
       return {
-        status: "success",
-        message: "Shared links accordingly!",
-      };
+        status: 'success',
+        message: 'Shared links accordingly!',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Web Share API not supported",
-      };
+        status: 'bad',
+        message: 'Web Share API not supported',
+      }
     }
   } catch (err) {
-    throw new Error("Failed to share for some weird reason 🤷‍♂️!");
+    throw new Error('Failed to share for some weird reason 🤷‍♂️!')
   }
 }
 
@@ -390,26 +403,30 @@ export async function WebShare(data: any): Promise<ResponseObject> {
  * @param {string} text - An accompanying text alongside the header.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function WebShareLink(url: string, title: string, text: string): Promise<ResponseObject> {
+export async function WebShareLink(
+  url: string,
+  title: string,
+  text: string,
+): Promise<ResponseObject> {
   try {
     if (navigator.canShare({ url })) {
       await navigator.share({
         title: title,
         text: text,
         url: url,
-      });
+      })
       return {
-        status: "success",
-        message: "Shared link accordingly!",
-      };
+        status: 'success',
+        message: 'Shared link accordingly!',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Web Share API not supported",
-      };
+        status: 'bad',
+        message: 'Web Share API not supported',
+      }
     }
   } catch (err) {
-    throw new Error("Failed to share for some weird reason 🤷‍♂️!");
+    throw new Error('Failed to share for some weird reason 🤷‍♂️!')
   }
 }
 
@@ -423,26 +440,30 @@ export async function WebShareLink(url: string, title: string, text: string): Pr
  * @param {string} text - An accompanying text alongside the header.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function WebShareFile(title: string, data: any[], text: string): Promise<ResponseObject> {
-  let filesArray = [...data];
+export async function WebShareFile(
+  title: string,
+  data: any[],
+  text: string,
+): Promise<ResponseObject> {
+  let filesArray = [...data]
   try {
     if (navigator.canShare && navigator.canShare({ files: filesArray })) {
       await navigator.share({
         files: filesArray,
         title: title,
         text: text,
-      });
+      })
       return {
-        status: "success",
-        message: "Shared file accordingly!",
-      };
+        status: 'success',
+        message: 'Shared file accordingly!',
+      }
     } else {
       return {
-        status: "bad",
-        message: "Web Share API not supported",
-      };
+        status: 'bad',
+        message: 'Web Share API not supported',
+      }
     }
   } catch (error) {
-    throw new Error("Error occured sharing file!");
+    throw new Error('Error occured sharing file!')
   }
 }
