@@ -7,6 +7,7 @@
     "./app/**/*.tsx",
     "./app/**/*.ts",
     "./prisma/**/*.ts",
+    "./types/**/*.ts",
     "./.eslintrc.js"
   ],
   "compilerOptions": {
@@ -23,7 +24,8 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "~/db/*": ["prisma/*"]
+      "~/db/*": ["prisma/*"],
+      "~/types/*": ["types/*"]
     },
 
     // Remix takes care of building everything in `remix build`.

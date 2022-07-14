@@ -2,6 +2,14 @@ import type { FC } from 'react'
 
 import { Container, createStyles } from '@mantine/core'
 
+import type { LoaderFunction } from '@remix-run/node'
+import { Outlet } from '@remix-run/react'
+
+import Appbar from '~/components/appbar'
+import Navigation from '~/components/navigation'
+
+import { verifySession } from '~/utils/auth.server'
+
 const useStyles = createStyles(theme => ({
   container: {
     position: 'relative',
@@ -14,8 +22,8 @@ const useStyles = createStyles(theme => ({
     },
   },
   main: {
-    height: 'calc(100% - 6rem)',
-    padding: `${theme.spacing.md}px`,
+    height: `calc(100% - ${theme.other.appbarHeight})`,
+    padding: `${theme.spacing.lg}px ${theme.spacing.xl}px`,
     display: 'flex',
     flexDirection: 'column',
     overflowY: 'auto',
@@ -32,18 +40,23 @@ const useStyles = createStyles(theme => ({
   },
 }))
 
+export const loader: LoaderFunction = async ({ request }) => {
+  await verifySession(request)
+  return null
+}
+
 const DashboardLayout: FC = () => {
   const { classes } = useStyles()
 
   return (
     <Container className={classes.container} fluid px={0}>
-      {/* <Navigation />
+      <Navigation />
       <div className={classes.content}>
         <Appbar />
         <main className={classes.main}>
           <Outlet />
         </main>
-      </div> */}
+      </div>
     </Container>
   )
 }

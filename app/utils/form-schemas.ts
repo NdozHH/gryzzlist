@@ -21,4 +21,12 @@ const signUpSchema = z.object({
   }),
 })
 
-export { signInSchema, signUpSchema }
+const productSchema = z.object({
+  name: z.string().min(1, {
+    message: 'Provided name is too short',
+  }),
+  number: z.number().min(1),
+  expiryDate: z.date().optional(),
+})
+
+export { signInSchema, signUpSchema, productSchema }

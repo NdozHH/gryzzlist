@@ -15,6 +15,16 @@ import {
 } from '~/utils/theme-provider'
 import type { ThemeProviderProps } from '~/utils/theme-provider'
 
+declare module '@mantine/core' {
+  export interface MantineThemeOther {
+    headerHeight: string
+    appbarHeight: string
+    zIndex: {
+      mobileNavigation: number
+    }
+  }
+}
+
 const ThemeProvider: FC<ThemeProviderProps> = ({
   children,
   providedColorScheme,
@@ -49,13 +59,10 @@ const ThemeProvider: FC<ThemeProviderProps> = ({
   }, [persistColorScheme])
 
   useEffect(() => {
-    console.log('primero')
     if (!firstRun.current) {
       firstRun.current = true
       return
     }
-
-    console.log('segundo')
 
     if (!colorScheme) return
 
@@ -63,7 +70,6 @@ const ThemeProvider: FC<ThemeProviderProps> = ({
       { colorScheme },
       { action: 'action/set-color-scheme', method: 'post' },
     )
-    console.log('tercero')
   }, [colorScheme])
 
   useEffect(() => {
@@ -91,7 +97,14 @@ const ThemeProvider: FC<ThemeProviderProps> = ({
           lg: 24,
           xl: 32,
         },
-        primaryColor: 'grape',
+        primaryColor: 'violet',
+        other: {
+          headerHeight: '4.375rem',
+          appbarHeight: '10.75rem',
+          zIndex: {
+            mobileNavigation: 2,
+          },
+        },
       }}
       styles={{
         Container: {
