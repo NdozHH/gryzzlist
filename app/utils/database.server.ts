@@ -2,9 +2,13 @@ import type { z } from 'zod'
 
 import prisma from '~/db/prisma.server'
 
-import type { productSchema } from './form-schemas'
+import type { calculatorSchema, productSchema } from './form-schemas'
 
 type ProductValues = z.infer<typeof productSchema> & {
+  userId: string
+}
+
+type ListValues = z.infer<typeof calculatorSchema> & {
   userId: string
 }
 
@@ -61,4 +65,29 @@ const deleteProduct = async (productId: string) => {
   return product
 }
 
-export { createProduct, getProducts, deleteProduct }
+const createList = async ({ products, userId }: ListValues) => {
+  const list = await prisma.list.create({
+    data: {
+      userId,
+      products: {
+        createMany: {
+          data: products.map(product => ({ ...product, userId })),
+        },
+      },
+    },
+  })
+
+  return list
+}
+
+const getUser = async (userId: string) => {
+  const user = await prisma.user.findFirstOrThrow({
+    where: {
+      id: userId,
+    },
+  })
+
+  return user
+}
+
+export { createProduct, getProducts, deleteProduct, createList, getUser }

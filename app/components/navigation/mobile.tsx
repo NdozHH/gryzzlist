@@ -1,22 +1,21 @@
 import type { FC } from 'react'
 
-import { Box, createStyles, Drawer, Text } from '@mantine/core'
+import { createStyles, Drawer, Group, Stack } from '@mantine/core'
 
 import HiddenBox from '~/components/hidden'
 import ThemeToggle from '~/components/theme-toggle'
 
 import { useNavigationContext } from '.'
+import LogoutButton from '../logout-button'
 import Options from './options'
 
 const useStyles = createStyles(theme => ({
-  optionsContainer: {
-    marginBottom: '5rem',
-  },
-  actionsContainer: {
-    marginTop: '2rem',
-  },
   drawer: {
     marginTop: theme.other.headerHeight,
+  },
+  title: {
+    margin: 0,
+    width: '100%',
   },
 }))
 
@@ -33,30 +32,33 @@ const Mobile: FC = () => {
         onClose={() => setOpened(false)}
         withCloseButton={false}
         title={
-          <div>
-            <Text transform="uppercase" size="sm" lineClamp={2}>
-              juan david cano
-            </Text>
-            <Text size="xs" color="dimmed">
-              juan@gmail.com
-            </Text>
-          </div>
+          <Group position="right" p="xl">
+            <ThemeToggle />
+          </Group>
         }
-        padding="xl"
         size="md"
         className={classes.drawer}
+        classNames={{
+          title: classes.title,
+        }}
       >
-        <Box
+        <Stack
+          spacing={0}
           sx={{
-            marginTop: '5rem',
+            paddingTop: '3rem',
             marginBottom: '8rem',
           }}
         >
           <Options onCloseDrawer={onCloseDrawer} />
-        </Box>
-        <div className={classes.actionsContainer}>
-          <ThemeToggle />
-        </div>
+          <Group
+            position="center"
+            sx={{
+              marginTop: '10rem',
+            }}
+          >
+            <LogoutButton />
+          </Group>
+        </Stack>
       </Drawer>
     </HiddenBox>
   )

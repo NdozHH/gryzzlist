@@ -125,6 +125,7 @@ const SignUpRoute: FC = () => {
   const { errors } = formState
   const submit = useSubmit()
   const transition = useTransition()
+  const isSubmitting = transition.state === 'submitting'
 
   const onSubmit = ({ email, password, name }: FormValues) => {
     submit(
@@ -180,7 +181,7 @@ const SignUpRoute: FC = () => {
             <Group position="center">
               <Button
                 type="submit"
-                loading={transition.state === 'submitting'}
+                loading={isSubmitting}
                 radius="md"
                 size="md"
                 variant="gradient"

@@ -153,7 +153,7 @@ const signUp = async (
 const logout = async (request: Request) => {
   const session = await handleSession(request)
 
-  return redirect('/login', {
+  return redirect('/sign-in', {
     headers: {
       'Set-Cookie': (await session.signOut()) as string,
     },

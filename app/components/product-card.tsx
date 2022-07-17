@@ -54,7 +54,7 @@ const ProductCard: FC<Product> = ({ id, name, number, expiryDate }) => {
             sx={{
               fontSize: '1.3rem',
             }}
-            color="grape"
+            color="violet"
           >
             x{number}
           </Text>

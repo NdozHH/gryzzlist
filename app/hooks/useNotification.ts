@@ -11,7 +11,7 @@ type NotificationContent =
   | undefined
 
 const variants = {
-  success: 'grape',
+  success: 'violet',
   info: 'cyan',
   warning: 'yellow',
   error: 'pink',

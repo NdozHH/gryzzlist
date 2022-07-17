@@ -25,8 +25,32 @@ const productSchema = z.object({
   name: z.string().min(1, {
     message: 'Provided name is too short',
   }),
-  number: z.number().min(1),
+  number: z
+    .number({
+      required_error: 'Number is required',
+    })
+    .positive('Provided number is not valid'),
   expiryDate: z.date().optional(),
 })
 
-export { signInSchema, signUpSchema, productSchema }
+const calculatorItemSchema = productSchema.merge(
+  z.object({
+    price: z
+      .number({
+        required_error: 'Price is required',
+      })
+      .positive('Provided price is not valid'),
+  }),
+)
+
+const calculatorSchema = z.object({
+  products: z.array(calculatorItemSchema),
+})
+
+export {
+  signInSchema,
+  signUpSchema,
+  productSchema,
+  calculatorSchema,
+  calculatorItemSchema,
+}

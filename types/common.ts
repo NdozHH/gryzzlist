@@ -9,3 +9,7 @@ export enum PantryAction {
   CREATE = 'create',
   DELETE = 'delete',
 }
+
+export interface AlertNotification {
+  message: string
+}

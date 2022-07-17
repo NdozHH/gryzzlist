@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Container,
-  createStyles,
   Group,
   Stack,
   Text,
@@ -28,37 +27,17 @@ import {
   createProduct,
   deleteProduct,
   getProducts,
-} from '~/utils/products.server'
+} from '~/utils/database.server'
 import { handleSession } from '~/utils/session.server'
 
 import { PantryAction } from '~/types/common'
-import type { Product } from '~/types/common'
+import type { Product, AlertNotification } from '~/types/common'
 
 interface LoaderData {
   products: Product[]
   name: string
-  notification?: {
-    message: string
-  }
+  notification?: AlertNotification
 }
-
-const useStyles = createStyles(theme => ({
-  container: {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  content: {
-    width: '100%',
-    maxWidth: 550,
-  },
-  productsContainer: {
-    border: '1px solid',
-    borderColor:
-      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.white,
-  },
-}))
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -171,7 +150,6 @@ export const CatchBoundary = () => {
 }
 
 const PantryRoute = () => {
-  const { classes } = useStyles()
   const transition = useTransition()
   const [opened, setOpened] = useState(false)
   const [filter, setFilter] = useState('')
@@ -188,7 +166,16 @@ const PantryRoute = () => {
   useNotification(notification)
 
   return (
-    <Container className={classes.container} fluid px={0}>
+    <Container
+      fluid
+      px={0}
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
       <Box
         sx={theme => ({
           width: '100%',

@@ -17,7 +17,7 @@ import {
 
 import { json, redirect } from '@remix-run/node'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
-import { Form, useSubmit } from '@remix-run/react'
+import { Form, useSubmit, useTransition } from '@remix-run/react'
 
 import { decodeBase64, signIn, verifySessionCookie } from '~/utils/auth.server'
 import { signInSchema } from '~/utils/form-schemas'
@@ -114,6 +114,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 const LoginRoute: FC = () => {
   const { classes } = useStyles()
+  const transition = useTransition()
   const { register, handleSubmit, formState } = useForm<FormValues>({
     defaultValues: {
       email: '',
@@ -123,6 +124,7 @@ const LoginRoute: FC = () => {
   })
   const { errors } = formState
   const submit = useSubmit()
+  const isSubmitting = transition.state === 'submitting'
 
   const onSubmit = ({ email, password }: FormValues) => {
     submit(
@@ -167,7 +169,7 @@ const LoginRoute: FC = () => {
             <Group position="center">
               <Button
                 type="submit"
-                // loading={transition.state === 'submitting'}
+                loading={isSubmitting}
                 radius="md"
                 size="md"
                 variant="gradient"
