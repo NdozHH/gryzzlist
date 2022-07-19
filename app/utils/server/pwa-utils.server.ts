@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const storage = require('node-persist')
 const webPush = require('web-push')
 
@@ -12,7 +13,9 @@ interface PushObject {
 }
 
 export async function SaveSubscription(sub: PushSubscription): Promise<void> {
-  await storage.init()
+  await storage.init({
+    forgiveParseErrors: true,
+  })
   await storage.setItem('subscription', sub)
 }
 
