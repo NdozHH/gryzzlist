@@ -1,17 +1,18 @@
+/* eslint-disable no-console */
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 
-import {
-  PushNotification,
-  SaveSubscription,
-} from '../../utils/server/pwa-utils.server'
+// import {
+//   PushNotification,
+//   SaveSubscription,
+// } from '../../utils/server/pwa-utils.server'
 
 const webPush = require('web-push')
 
 export const action: ActionFunction = async ({ request }) => {
-  const data = await request.json()
-  const subscription = data.subscription
+  // const data = await request.json()
+  // const subscription = data.subscription
 
-  SaveSubscription(subscription)
+  // SaveSubscription(subscription)
 
   return { message: 'Done' }
 }
