@@ -35,7 +35,7 @@ interface LoaderData {
 let isMount = true
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
-  title: 'Hackathon App',
+  title: 'GryzzList',
   viewport: 'width=device-width,initial-scale=1',
 })
 

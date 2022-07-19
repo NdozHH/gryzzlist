@@ -15,10 +15,20 @@ import { useSubmit, useTransition } from '@remix-run/react'
 
 import { getExpiresLabel } from '~/utils/browser'
 
-import { PantryAction } from '~/types/common'
+import { ActionType } from '~/types/common'
 import type { Product } from '~/types/common'
 
-const ProductCard: FC<Product> = ({ id, name, number, expiryDate }) => {
+type ProductCardProps = Omit<Product, 'price'> & {
+  hideDelete?: boolean
+}
+
+const ProductCard: FC<ProductCardProps> = ({
+  id,
+  name,
+  number,
+  expiryDate,
+  hideDelete = false,
+}) => {
   const theme = useMantineTheme()
   const submit = useSubmit()
   const transition = useTransition()
@@ -29,14 +39,14 @@ const ProductCard: FC<Product> = ({ id, name, number, expiryDate }) => {
     : 0
   const label = getExpiresLabel(
     difference,
-    expiryDate ? formattedDate : undefined,
+    expiryDate ? formattedDate : 'undated',
   )
   const isDeleting = transition.submission?.formData.get('productId') === id
 
   const onDelete = () => {
     submit(
       {
-        actionType: PantryAction.DELETE,
+        actionType: ActionType.DELETE,
         productId: id,
       },
       {
@@ -54,7 +64,7 @@ const ProductCard: FC<Product> = ({ id, name, number, expiryDate }) => {
             sx={{
               fontSize: '1.3rem',
             }}
-            color="grape"
+            color="violet"
           >
             x{number}
           </Text>
@@ -62,34 +72,26 @@ const ProductCard: FC<Product> = ({ id, name, number, expiryDate }) => {
             <Text size="lg" transform="capitalize">
               {name}
             </Text>
-            {expiryDate ? (
-              <Text size="sm" color="dimmed">
-                Expires:{' '}
-                <span
-                  style={{
-                    color:
-                      label === 'expired' ? theme.colors.red[5] : 'inherit',
-                  }}
-                >
-                  {label}
-                </span>
-              </Text>
-            ) : null}
+            <Text size="sm" color="dimmed">
+              Expires: {label}
+            </Text>
           </Stack>
         </Group>
-        <Group>
-          <ActionIcon
-            radius="md"
-            variant="default"
-            sx={{
-              backgroundColor: 'transparent',
-              border: 'none',
-            }}
-            onClick={onDelete}
-          >
-            <Trash size={20} color={theme.colors.gray[6]} />
-          </ActionIcon>
-        </Group>
+        {!hideDelete ? (
+          <Group>
+            <ActionIcon
+              radius="md"
+              variant="default"
+              sx={{
+                backgroundColor: 'transparent',
+                border: 'none',
+              }}
+              onClick={onDelete}
+            >
+              <Trash size={20} color={theme.colors.gray[6]} />
+            </ActionIcon>
+          </Group>
+        ) : null}
       </Group>
     </Paper>
   )

@@ -4,7 +4,6 @@ import { Bell } from 'tabler-icons-react'
 import {
   ActionIcon,
   Burger,
-  createStyles,
   Group,
   Header as MHeader,
   Text,
@@ -15,20 +14,7 @@ import Hidden from '~/components/hidden'
 
 import { useNavigationContext } from './navigation'
 
-const useStyles = createStyles(theme => ({
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-    height: '100%',
-  },
-  header: {
-    padding: `${theme.spacing.sm}px `,
-    zIndex: theme.other.zIndex.mobileNavigation + 1,
-  },
-}))
-
 const Header: FC = () => {
-  const { classes } = useStyles()
   const theme = useMantineTheme()
   const { opened, setOpened } = useNavigationContext()
 
@@ -36,8 +22,20 @@ const Header: FC = () => {
 
   return (
     <Hidden largerThan="sm">
-      <MHeader className={classes.header} height={theme.other.headerHeight}>
-        <Group position="apart">
+      <MHeader
+        sx={theme => ({
+          padding: `${theme.spacing.sm}px `,
+          zIndex: theme.other.zIndex.mobileNavigation + 1,
+          display: 'flex',
+        })}
+        height={theme.other.headerHeight}
+      >
+        <Group
+          position="apart"
+          sx={{
+            width: '100%',
+          }}
+        >
           <Burger
             opened={opened}
             onClick={handleBurgerButton}

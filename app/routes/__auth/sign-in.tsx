@@ -6,7 +6,6 @@ import type { z } from 'zod'
 import {
   Button,
   Container,
-  createStyles,
   Group,
   Paper,
   PasswordInput,
@@ -17,32 +16,13 @@ import {
 
 import { json, redirect } from '@remix-run/node'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
-import { Form, useSubmit } from '@remix-run/react'
+import { Form, Link, useSubmit, useTransition } from '@remix-run/react'
 
 import { decodeBase64, signIn, verifySessionCookie } from '~/utils/auth.server'
 import { signInSchema } from '~/utils/form-schemas'
 import { handleSession } from '~/utils/session.server'
 
 type FormValues = z.infer<typeof signInSchema>
-
-const useStyles = createStyles(theme => ({
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
-      padding: `${theme.spacing.md}px`,
-    },
-  },
-  paper: {
-    width: '100%',
-    maxWidth: 500,
-    border: '1px solid',
-    borderColor:
-      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.white,
-  },
-}))
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await handleSession(request)
@@ -113,7 +93,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const LoginRoute: FC = () => {
-  const { classes } = useStyles()
+  const transition = useTransition()
   const { register, handleSubmit, formState } = useForm<FormValues>({
     defaultValues: {
       email: '',
@@ -123,6 +103,7 @@ const LoginRoute: FC = () => {
   })
   const { errors } = formState
   const submit = useSubmit()
+  const isSubmitting = transition.state === 'submitting'
 
   const onSubmit = ({ email, password }: FormValues) => {
     submit(
@@ -134,51 +115,90 @@ const LoginRoute: FC = () => {
   }
 
   return (
-    <Container className={classes.container} fluid>
-      <Paper className={classes.paper} radius="md" p="md">
-        <Form method="post" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Stack>
-            <Text align="center" size="xl">
-              Sign in to your account
-            </Text>
-            <TextInput
-              id="email"
-              placeholder="Enter your email"
-              autoComplete="email"
-              label="Email"
-              radius="md"
-              size="sm"
-              required
-              type="email"
-              error={errors?.email?.message}
-              {...register('email')}
-            />
-            <PasswordInput
-              id="password"
-              placeholder="Enter your password"
-              autoComplete="current-password"
-              label="Password"
-              radius="md"
-              size="sm"
-              required
-              error={errors?.password?.message}
-              {...register('password')}
-            />
-            <Group position="center">
-              <Button
-                type="submit"
-                // loading={transition.state === 'submitting'}
+    <Container
+      fluid
+      sx={theme => ({
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+        [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
+          padding: `${theme.spacing.md}px`,
+        },
+      })}
+    >
+      <Stack
+        align="center"
+        sx={{
+          maxWidth: 500,
+          width: '100%',
+        }}
+      >
+        <Paper
+          radius="md"
+          p="md"
+          withBorder
+          sx={{
+            width: '100%',
+          }}
+        >
+          <Form method="post" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Stack>
+              <Text align="center" size="xl">
+                Sign in to your account
+              </Text>
+              <TextInput
+                id="email"
+                placeholder="Enter your email"
+                autoComplete="email"
+                label="Email"
                 radius="md"
-                size="md"
-                variant="gradient"
-                gradient={{ from: 'violet', to: 'grape', deg: 105 }}
-              >
-                Sign In
-              </Button>
-            </Group>
-          </Stack>
-        </Form>
-      </Paper>
+                variant="default"
+                size="sm"
+                required
+                type="email"
+                error={errors?.email?.message}
+                {...register('email')}
+              />
+              <PasswordInput
+                id="password"
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                label="Password"
+                radius="md"
+                variant="default"
+                size="sm"
+                required
+                error={errors?.password?.message}
+                {...register('password')}
+              />
+              <Group position="center">
+                <Button
+                  type="submit"
+                  loading={isSubmitting}
+                  radius="md"
+                  size="md"
+                  variant="gradient"
+                  gradient={{ from: 'violet', to: 'grape', deg: 105 }}
+                >
+                  Sign In
+                </Button>
+              </Group>
+            </Stack>
+          </Form>
+        </Paper>
+        <Text
+          align="center"
+          sx={theme => ({
+            marginTop: `${theme.spacing.xl}px`,
+          })}
+        >
+          Don't have an account?{' '}
+          <Text component={Link} to="/sign-up" color="violet" variant="link">
+            ¡Create one!
+          </Text>
+        </Text>
+      </Stack>
     </Container>
   )
 }

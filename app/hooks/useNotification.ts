@@ -1,53 +1,31 @@
-import { useId, useShallowEffect } from '@mantine/hooks'
+import { useDidUpdate } from '@mantine/hooks'
 import { useNotifications } from '@mantine/notifications'
-import type { NotificationProps } from '@mantine/notifications'
 
-type NotificationContent =
-  | 'string'
-  | {
-      title?: string
-      message?: string
-    }
-  | undefined
+import type { AlertNotification } from '~/types/common'
 
-const variants = {
-  success: 'grape',
-  info: 'cyan',
-  warning: 'yellow',
-  error: 'pink',
-}
-
-interface NotificationConfiguration
-  extends Omit<NotificationProps, 'title' | 'message' | 'color'> {
-  variant?: keyof typeof variants
-}
+type NotificationContent = AlertNotification | undefined
 
 const useNotification = (
-  content: NotificationContent,
-  configuration: NotificationConfiguration = {},
+  content: NotificationContent = {
+    message: '',
+    id: '',
+  },
 ) => {
-  const { showNotification } = useNotifications()
-  const id = useId()
+  const { showNotification: showMNotification } = useNotifications()
+  const { id, message } = content
 
-  useShallowEffect(() => {
-    if (!content) return
+  useDidUpdate(() => {
+    if (!message) return
 
-    const title = typeof content === 'string' ? undefined : content.title
-    const message = typeof content === 'string' ? content : content.message
+    showMNotification({
+      id,
+      color: 'violet',
+      radius: 'md',
+      message,
+    })
+  }, [message, id])
 
-    if (message) {
-      showNotification({
-        id,
-        color: variants[configuration.variant || 'success'],
-        ...configuration,
-        radius: 'md',
-        title,
-        message,
-      })
-    }
-  }, [configuration, content, showNotification])
-
-  return configuration.id || id
+  return id
 }
 
 export default useNotification

@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+import invariant from 'tiny-invariant'
 
 import { Container, createStyles } from '@mantine/core'
 
@@ -9,6 +10,8 @@ import Appbar from '~/components/appbar'
 import Navigation from '~/components/navigation'
 
 import { verifySession } from '~/utils/auth.server'
+import { getUser } from '~/utils/database.server'
+import { handleSession } from '~/utils/session.server'
 
 const useStyles = createStyles(theme => ({
   container: {
@@ -22,13 +25,16 @@ const useStyles = createStyles(theme => ({
     },
   },
   main: {
-    height: `calc(100% - ${theme.other.appbarHeight})`,
-    padding: `${theme.spacing.lg}px ${theme.spacing.xl}px`,
+    height: '100%',
+    padding: `0 ${theme.spacing.xl}px`,
+    marginTop: `${theme.spacing.lg}px`,
     display: 'flex',
     flexDirection: 'column',
     overflowY: 'auto',
     [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
-      padding: `${theme.spacing.sm}px`,
+      padding: `0 ${theme.spacing.sm}px`,
+      marginTop: `${theme.spacing.sm}px`,
+      height: '100%',
     },
   },
   content: {
@@ -42,7 +48,17 @@ const useStyles = createStyles(theme => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   await verifySession(request)
-  return null
+
+  const session = await handleSession(request)
+  const userId = session.getUserId()
+
+  invariant(userId, 'userId is not valid')
+
+  const user = await getUser(userId)
+
+  return {
+    user,
+  }
 }
 
 const DashboardLayout: FC = () => {

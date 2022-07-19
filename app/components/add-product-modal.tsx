@@ -11,7 +11,7 @@ import { Form, useSubmit, useTransition } from '@remix-run/react'
 
 import { productSchema } from '~/utils/form-schemas'
 
-import { PantryAction } from '~/types/common'
+import { ActionType } from '~/types/common'
 
 import DatePicker from './date-picker'
 import NumberInput from './number-input'
@@ -44,7 +44,7 @@ const AddProductModal: FC<ModalProps> = props => {
   const onSubmit = ({ name, number, expiryDate }: FormValues) => {
     submit(
       {
-        actionType: PantryAction.CREATE,
+        actionType: ActionType.CREATE,
         name,
         number: number!.toString(),
         ...(expiryDate ? { expiryDate: expiryDate.toUTCString() } : {}),
@@ -72,7 +72,7 @@ const AddProductModal: FC<ModalProps> = props => {
             placeholder="Enter product name"
             label="Name"
             radius="md"
-            size="md"
+            size="sm"
             required
             variant="default"
             error={errors?.name?.message}
@@ -83,6 +83,7 @@ const AddProductModal: FC<ModalProps> = props => {
             description="How much of this product do you have?"
             control={control}
             name="number"
+            size="sm"
             error={errors?.number?.message}
           />
           <DatePicker
@@ -90,6 +91,7 @@ const AddProductModal: FC<ModalProps> = props => {
             label="Expiry date"
             placeholder="Enter expiry date"
             name="expiryDate"
+            size="sm"
             control={control}
             description="When does this product expire?"
             error={errors?.expiryDate?.message}

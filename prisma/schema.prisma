@@ -19,13 +19,16 @@ model User {
   name      String?
   email     String    @unique
   password  Password?
-  Product   Product[]
+  products  Product[]
+  lists     List[]
+
+  @@index([email])
 }
 
 model Password {
   hash   String @unique
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  user   User   @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: Cascade)
 }
 
 model Product {
@@ -33,8 +36,23 @@ model Product {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now()) @updatedAt
   name       String
-  number     Int
+  number     Int?
+  price      Float?
   expiryDate DateTime?
   userId     String    @map("ownerId")
-  user       User      @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  user       User      @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  listId     String?
+  list       List?     @relation(fields: [listId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+
+  @@index([name])
+}
+
+model List {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  total     Float
+  products  Product[]
+  userId    String    @map("ownerId")
+  user      User      @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: Cascade)
 }
