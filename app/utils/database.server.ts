@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import type { z } from 'zod'
 
 import prisma from '~/db/prisma.server'
@@ -9,6 +10,7 @@ type ProductValues = z.infer<typeof productSchema> & {
 }
 
 type ListValues = z.infer<typeof calculatorSchema> & {
+  total: number
   userId: string
 }
 
@@ -46,6 +48,7 @@ const getProducts = async (userId: string) => {
       name: true,
       number: true,
       expiryDate: true,
+      price: true,
     },
   })
 
@@ -65,10 +68,11 @@ const deleteProduct = async (productId: string) => {
   return product
 }
 
-const createList = async ({ products, userId }: ListValues) => {
+const createList = async ({ products, total, userId }: ListValues) => {
   const list = await prisma.list.create({
     data: {
       userId,
+      total,
       products: {
         createMany: {
           data: products.map(product => ({ ...product, userId })),
@@ -78,6 +82,58 @@ const createList = async ({ products, userId }: ListValues) => {
   })
 
   return list
+}
+
+const getLists = async (userId: string) => {
+  const lists = await prisma.list.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+      id: true,
+      createdAt: true,
+      total: true,
+    },
+  })
+
+  return lists
+}
+
+const deleteList = async (listId: string) => {
+  await prisma.list.delete({
+    where: {
+      id: listId,
+    },
+  })
+}
+
+const getListProducts = async (listId: string) => {
+  const list = await prisma.list.findUnique({
+    where: {
+      id: listId,
+    },
+    select: {
+      products: {
+        select: {
+          id: true,
+          name: true,
+          number: true,
+          expiryDate: true,
+          price: true,
+        },
+      },
+    },
+  })
+
+  return list?.products
 }
 
 const getUser = async (userId: string) => {
@@ -90,4 +146,16 @@ const getUser = async (userId: string) => {
   return user
 }
 
-export { createProduct, getProducts, deleteProduct, createList, getUser }
+const generateRandomString = () => crypto.randomBytes(4).toString('hex')
+
+export {
+  createProduct,
+  getProducts,
+  deleteProduct,
+  createList,
+  getUser,
+  getLists,
+  deleteList,
+  getListProducts,
+  generateRandomString,
+}

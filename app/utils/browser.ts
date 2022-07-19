@@ -11,9 +11,19 @@ const getFilteredProducts = (products: Product[], filter: string) => {
 const getExpiresLabel = (difference: number, defaultLabel = '') => {
   if (difference <= 0) return 'expired'
 
-  if (difference <= 3) return `on ${difference} days`
+  if (difference <= 3)
+    return `on ${difference} ${difference === 1 ? 'day' : 'days'}`
 
   return defaultLabel
 }
 
-export { getFilteredProducts, getExpiresLabel }
+const formatCurrency = (value: number) => {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  })
+
+  return formatter.format(value)
+}
+
+export { getFilteredProducts, getExpiresLabel, formatCurrency }

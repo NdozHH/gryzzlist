@@ -14,7 +14,7 @@ const Appbar: FC = () => {
   const matches = useMatches()
   const location = useLocation()
   const smUp = useMediaQuery(`(min-width: ${theme.breakpoints.sm}px)`, false)
-  const allowedRoutes = ['/pantry']
+  const allowedRoutes = ['/pantry', '/lists']
   const currentRoute = matches.find(
     route => route.pathname === location.pathname,
   )

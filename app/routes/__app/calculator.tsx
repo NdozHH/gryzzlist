@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import type { FC } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import type { Control } from 'react-hook-form'
@@ -28,7 +29,7 @@ import NumberInput from '~/components/number-input'
 
 import useNotification from '~/hooks/useNotification'
 
-import { createList } from '~/utils/database.server'
+import { createList, generateRandomString } from '~/utils/database.server'
 import { calculatorSchema } from '~/utils/form-schemas'
 import type { calculatorItemSchema } from '~/utils/form-schemas'
 import { handleSession } from '~/utils/session.server'
@@ -68,6 +69,7 @@ export const loader: LoaderFunction = async ({ request }) => {
           ? {
               notification: {
                 message: notification,
+                id: generateRandomString(),
               },
             }
           : {}),
@@ -92,12 +94,15 @@ export const action: ActionFunction = async ({ request }) => {
     const session = await handleSession(request)
     const userId = session.getUserId()
     const products = formData.get('products')
+    const total = formData.get('total')
 
     invariant(products, 'products is required')
+    invariant(total, 'total is required')
     invariant(userId, 'userId is not valid')
 
     await createList({
       products: JSON.parse(products as string) as List,
+      total: Number(total),
       userId,
     })
 
@@ -126,7 +131,10 @@ const Total: FC<TotalProps> = ({ control }) => {
     name: 'products',
     control,
   })
-  const total = values.reduce((sum, current) => sum + (current.price || 0), 0)
+  const total = values.reduce(
+    (sum, current) => sum + (current.price * current.number || 0),
+    0,
+  )
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -157,6 +165,7 @@ const CalculatorRoute: FC = () => {
     register,
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
@@ -178,6 +187,13 @@ const CalculatorRoute: FC = () => {
   useNotification(notification)
   const hasOneItem = fields.length === 1
   const isSubmitting = fetcher.state === 'submitting'
+  const isDone = fetcher.type === 'done'
+
+  useEffect(() => {
+    if (isDone) {
+      reset()
+    }
+  }, [isDone, reset])
 
   const onAddProduct = () => {
     prepend({
@@ -203,9 +219,15 @@ const CalculatorRoute: FC = () => {
   }
 
   const onSubmit = ({ products }: FormValues) => {
+    const total = products.reduce(
+      (sum, current) => sum + (current.price * current.number || 0),
+      0,
+    )
+
     fetcher.submit(
       {
         products: JSON.stringify(products),
+        total: total.toString(),
       },
       {
         method: 'post',
@@ -331,6 +353,8 @@ const CalculatorRoute: FC = () => {
                             control={control}
                             enterKeyHint="done"
                             inputMode="decimal"
+                            noClampOnBlur
+                            precision={2}
                             label={undefined}
                             placeholder="Enter price"
                             size="xs"

@@ -30,7 +30,7 @@ import {
 } from '~/utils/database.server'
 import { handleSession } from '~/utils/session.server'
 
-import { PantryAction } from '~/types/common'
+import { ActionType } from '~/types/common'
 import type { Product, AlertNotification } from '~/types/common'
 
 interface LoaderData {
@@ -77,11 +77,11 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   try {
     const formData = await request.formData()
-    const actionType = formData.get('actionType') as PantryAction
+    const actionType = formData.get('actionType') as ActionType
     const session = await handleSession(request)
     const userId = session.getUserId()
 
-    if (actionType === PantryAction.CREATE) {
+    if (actionType === ActionType.CREATE) {
       const name = formData.get('name')
       const number = formData.get('number')
       const expiryDate = formData.get('expiryDate')
@@ -116,7 +116,7 @@ export const action: ActionFunction = async ({ request }) => {
       })
     }
 
-    if (actionType === PantryAction.DELETE) {
+    if (actionType === ActionType.DELETE) {
       const productId = formData.get('productId')
 
       invariant(productId, 'productId is required')

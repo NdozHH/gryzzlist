@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { Calculator, CheckupList, Notes } from 'tabler-icons-react'
+import { Calculator, CheckupList, Cheese } from 'tabler-icons-react'
 
 import { Stack } from '@mantine/core'
 
@@ -20,7 +20,7 @@ const Options: FC<OptionsProps> = ({ onCloseDrawer }) => {
       <Option
         to="pantry"
         label="Pantry"
-        leftIcon={<Notes size={25} />}
+        leftIcon={<Cheese size={25} />}
         onClick={onCloseDrawer}
       />
       <Option
