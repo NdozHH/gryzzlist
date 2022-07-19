@@ -19,12 +19,9 @@ export const action: ActionFunction = async ({ request }) => {
 
   colorSchemeSession.setColorScheme(colorScheme)
 
-  return json(
-    { success: true },
-    {
-      headers: { 'Set-Cookie': await colorSchemeSession.commit() },
-    },
-  )
+  return json(null, {
+    headers: { 'Set-Cookie': await colorSchemeSession.commit() },
+  })
 }
 
 export const loader = () => redirect('/', { status: 404 })

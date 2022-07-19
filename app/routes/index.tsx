@@ -2,6 +2,8 @@ import type { FC } from 'react'
 
 import { Container, createStyles, Title, Text } from '@mantine/core'
 
+import { Link } from '@remix-run/react'
+
 import ThemeToggle from '~/components/theme-toggle'
 
 const useStyles = createStyles(() => ({
@@ -29,6 +31,10 @@ const BaseRoute: FC = () => {
         <Title order={2} sx={{ fontSize: '4rem' }}>
           Coming soon!
         </Title>
+
+        <Text component={Link} to="/sign-in" color="violet" variant="link">
+          Login
+        </Text>
         <ThemeToggle />
       </Text>
     </Container>

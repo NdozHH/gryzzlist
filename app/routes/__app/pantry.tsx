@@ -26,6 +26,7 @@ import { getFilteredProducts } from '~/utils/browser'
 import {
   createProduct,
   deleteProduct,
+  generateRandomString,
   getProducts,
 } from '~/utils/database.server'
 import { handleSession } from '~/utils/session.server'
@@ -54,6 +55,7 @@ export const loader: LoaderFunction = async ({ request }) => {
         ...(notification
           ? {
               notification: {
+                id: generateRandomString(),
                 message: notification,
               },
             }
