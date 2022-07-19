@@ -41,7 +41,9 @@ export async function PushNotification(content: PushObject, delay: number = 0) {
     process.env.VAPID_PRIVATE_KEY,
   )
 
-  await storage.init()
+  await storage.init({
+    forgiveParseErrors: true,
+  })
   const subscription = await storage.getItem('subscription')
 
   setTimeout(() => {
