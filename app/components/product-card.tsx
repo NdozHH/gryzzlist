@@ -11,7 +11,7 @@ import {
   useMantineTheme,
 } from '@mantine/core'
 
-import { useSubmit, useTransition } from '@remix-run/react'
+import { useFetcher } from '@remix-run/react'
 
 import { getExpiresLabel } from '~/utils/browser'
 
@@ -30,8 +30,7 @@ const ProductCard: FC<ProductCardProps> = ({
   hideDelete = false,
 }) => {
   const theme = useMantineTheme()
-  const submit = useSubmit()
-  const transition = useTransition()
+  const fetcher = useFetcher()
   const formattedDate = dayjs(expiryDate).format('MMMM DD, YYYY')
   const currentDate = dayjs()
   const difference = expiryDate
@@ -41,10 +40,10 @@ const ProductCard: FC<ProductCardProps> = ({
     difference,
     expiryDate ? formattedDate : 'undated',
   )
-  const isDeleting = transition.submission?.formData.get('productId') === id
+  const isDeleting = fetcher.submission?.formData.get('productId') === id
 
   const onDelete = () => {
-    submit(
+    fetcher.submit(
       {
         actionType: ActionType.DELETE,
         productId: id,
@@ -57,43 +56,45 @@ const ProductCard: FC<ProductCardProps> = ({
   }
 
   return (
-    <Paper radius="md" withBorder p="md" hidden={isDeleting}>
-      <Group position="apart">
-        <Group>
-          <Text
-            sx={{
-              fontSize: '1.3rem',
-            }}
-            color="violet"
-          >
-            x{number}
-          </Text>
-          <Stack spacing={0}>
-            <Text size="lg" transform="capitalize">
-              {name}
-            </Text>
-            <Text size="sm" color="dimmed">
-              Expires: {label}
-            </Text>
-          </Stack>
-        </Group>
-        {!hideDelete ? (
+    <fetcher.Form>
+      <Paper radius="md" withBorder p="md" hidden={isDeleting}>
+        <Group position="apart">
           <Group>
-            <ActionIcon
-              radius="md"
-              variant="default"
+            <Text
               sx={{
-                backgroundColor: 'transparent',
-                border: 'none',
+                fontSize: '1.3rem',
               }}
-              onClick={onDelete}
+              color="violet"
             >
-              <Trash size={20} color={theme.colors.gray[6]} />
-            </ActionIcon>
+              x{number}
+            </Text>
+            <Stack spacing={0}>
+              <Text size="lg" transform="capitalize">
+                {name}
+              </Text>
+              <Text size="sm" color="dimmed">
+                Expires: {label}
+              </Text>
+            </Stack>
           </Group>
-        ) : null}
-      </Group>
-    </Paper>
+          {!hideDelete ? (
+            <Group>
+              <ActionIcon
+                radius="md"
+                variant="default"
+                sx={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                }}
+                onClick={onDelete}
+              >
+                <Trash size={20} color={theme.colors.gray[6]} />
+              </ActionIcon>
+            </Group>
+          ) : null}
+        </Group>
+      </Paper>
+    </fetcher.Form>
   )
 }
 

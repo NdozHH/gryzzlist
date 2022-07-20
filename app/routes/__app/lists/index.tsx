@@ -3,8 +3,8 @@ import { Stack, Text } from '@mantine/core'
 const ListsIndexRoute = () => {
   return (
     <Stack
-      justify={true ? 'center' : 'flex-start'}
-      align={true ? 'center' : 'stretch'}
+      justify="center"
+      align="center"
       sx={{
         width: '100%',
         maxWidth: '34.375rem',

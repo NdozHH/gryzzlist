@@ -1,12 +1,20 @@
-import type { FC } from 'react'
+import type { FC, ReactNode } from 'react'
 
 import { Box, Button, Container, Group, Text, Title } from '@mantine/core'
 
 interface ErrorContainerProps {
   status?: number
+  title?: string
+  description?: string
+  action?: ReactNode
 }
 
-const ErrorContainer: FC<ErrorContainerProps> = ({ status = undefined }) => {
+const ErrorContainer: FC<ErrorContainerProps> = ({
+  status = undefined,
+  title = 'Something bad just happened...',
+  description = 'We know you had an unexpected problem, please refresh the page.',
+  action = undefined,
+}) => {
   const onRefresh = () => {
     if (!(typeof document === 'undefined')) {
       location.reload()
@@ -56,7 +64,7 @@ const ErrorContainer: FC<ErrorContainerProps> = ({ status = undefined }) => {
           },
         })}
       >
-        Something bad just happened...
+        {title}
       </Title>
       <Text
         size="lg"
@@ -69,18 +77,20 @@ const ErrorContainer: FC<ErrorContainerProps> = ({ status = undefined }) => {
           color: theme.colors.gray[7],
         })}
       >
-        We know you had an unexpected problem, please refresh the page.
+        {description}
       </Text>
       <Group position="center">
-        <Button
-          radius="md"
-          size="md"
-          variant="gradient"
-          gradient={{ from: 'violet', to: 'grape', deg: 105 }}
-          onClick={onRefresh}
-        >
-          Refresh the page
-        </Button>
+        {action || (
+          <Button
+            radius="md"
+            size="md"
+            variant="gradient"
+            gradient={{ from: 'violet', to: 'grape', deg: 105 }}
+            onClick={onRefresh}
+          >
+            Refresh the page
+          </Button>
+        )}
       </Group>
     </Container>
   )

@@ -4,7 +4,11 @@ import invariant from 'tiny-invariant'
 import { Box, Container, Stack, Text, useMantineTheme } from '@mantine/core'
 
 import { json, redirect } from '@remix-run/node'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import type {
+  LoaderFunction,
+  ActionFunction,
+  MetaFunction,
+} from '@remix-run/node'
 import { Outlet, useCatch, useLoaderData } from '@remix-run/react'
 
 import ErrorContainer from '~/components/error-container'
@@ -25,6 +29,12 @@ interface LoaderData {
   name: string
   notification?: AlertNotification
   lists: List[]
+}
+
+export const meta: MetaFunction = () => {
+  return {
+    title: 'Lists | GryzzList',
+  }
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -112,7 +122,6 @@ const ListsRoute: FC = () => {
           flexDirection: 'column',
           justifyContent: 'flex-start',
           alignItems: 'center',
-          paddingTop: `${theme.spacing.md}px`,
         },
       }}
     >

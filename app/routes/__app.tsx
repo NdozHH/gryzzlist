@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import invariant from 'tiny-invariant'
 
-import { Container, createStyles } from '@mantine/core'
+import { Box, Container } from '@mantine/core'
 
 import type { LoaderFunction } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
@@ -12,39 +12,6 @@ import Navigation from '~/components/navigation'
 import { verifySession } from '~/utils/auth.server'
 import { getUser } from '~/utils/database.server'
 import { handleSession } from '~/utils/session.server'
-
-const useStyles = createStyles(theme => ({
-  container: {
-    position: 'relative',
-    height: '100%',
-    display: 'grid',
-    gridTemplateColumns: 'fit-content(100%) 1fr',
-    [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
-      gridTemplateColumns: '1fr',
-      gridTemplateRows: 'fit-content(100%) 1fr',
-    },
-  },
-  main: {
-    height: '100%',
-    padding: `0 ${theme.spacing.xl}px`,
-    marginTop: `${theme.spacing.lg}px`,
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto',
-    [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
-      padding: `0 ${theme.spacing.sm}px`,
-      marginTop: `${theme.spacing.sm}px`,
-      height: '100%',
-    },
-  },
-  content: {
-    display: 'flex',
-    flexDirection: 'column',
-    minWidth: 0,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-}))
 
 export const loader: LoaderFunction = async ({ request }) => {
   await verifySession(request)
@@ -61,20 +28,54 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 }
 
-const DashboardLayout: FC = () => {
-  const { classes } = useStyles()
-
+const MainLayout: FC = () => {
   return (
-    <Container className={classes.container} fluid px={0}>
+    <Container
+      fluid
+      px={0}
+      sx={theme => ({
+        position: 'relative',
+        height: '100%',
+        display: 'grid',
+        gridTemplateColumns: 'fit-content(100%) 1fr',
+        [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
+          gridTemplateColumns: '1fr',
+          gridTemplateRows: 'fit-content(100%) 1fr',
+        },
+      })}
+    >
       <Navigation />
-      <div className={classes.content}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          overflow: 'hidden',
+          position: 'relative',
+        }}
+      >
         <Appbar />
-        <main className={classes.main}>
+        <Box
+          component="main"
+          sx={theme => ({
+            height: '100%',
+            padding: `0 ${theme.spacing.xl}px`,
+            marginTop: `${theme.spacing.lg}px`,
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+            [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
+              padding: `0 ${theme.spacing.sm}px`,
+              marginTop: `${theme.spacing.sm}px`,
+              height: '100%',
+            },
+          })}
+        >
           <Outlet />
-        </main>
-      </div>
+        </Box>
+      </Box>
     </Container>
   )
 }
 
-export default DashboardLayout
+export default MainLayout

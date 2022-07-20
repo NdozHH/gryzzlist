@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { FC } from 'react'
 import { useForm } from 'react-hook-form'
+import invariant from 'tiny-invariant'
 import type { z } from 'zod'
 
 import {
@@ -15,14 +16,39 @@ import {
 } from '@mantine/core'
 
 import { redirect, json } from '@remix-run/node'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
-import { Form, Link, useSubmit, useTransition } from '@remix-run/react'
+import type {
+  LoaderFunction,
+  ActionFunction,
+  MetaFunction,
+} from '@remix-run/node'
+import {
+  Form,
+  Link,
+  useActionData,
+  useSubmit,
+  useTransition,
+} from '@remix-run/react'
+
+import Alert from '~/components/alert'
 
 import { decodeBase64, signUp, verifySessionCookie } from '~/utils/auth.server'
+import { generateRandomString } from '~/utils/database.server'
 import { signUpSchema } from '~/utils/form-schemas'
 import { handleSession } from '~/utils/session.server'
 
+import type { AlertNotification } from '~/types/common'
+
 type FormValues = z.infer<typeof signUpSchema>
+
+interface ActionData {
+  error?: AlertNotification
+}
+
+export const meta: MetaFunction = () => {
+  return {
+    title: 'Sign up | GryzzList',
+  }
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await handleSession(request)
@@ -39,61 +65,60 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const { email, password, name } = Object.fromEntries(
-    await request.formData(),
-  ) as FormValues
-  const decodedPassword = decodeBase64(password)
-  const result = signUpSchema.safeParse({
-    email,
-    password: decodedPassword,
-    name,
-  })
+  try {
+    const formData = await request.formData()
+    const name = formData.get('name')
+    const email = formData.get('email')
+    const password = formData.get('password')
+    const session = await handleSession(request)
 
-  if (result.success) {
-    try {
-      const session = await handleSession(request)
-      const signUpResult = await signUp(
-        request,
-        email.toLowerCase(),
-        decodedPassword,
-        name,
-      )
+    invariant(name, 'name is required')
+    invariant(email, 'email is required')
+    invariant(password, 'password is required')
 
-      if (!signUpResult.session || !signUpResult.isSignedIn) {
-        return json(
-          {
-            error: {
-              message: `We're having trouble creating your account. Please try again later.`,
-            },
+    const decodedPassword = decodeBase64(String(password))
+    const signUpResult = await signUp(
+      request,
+      email.toString().toLowerCase(),
+      decodedPassword,
+      String(name),
+    )
+
+    if (!signUpResult.session || !signUpResult.isSignedIn) {
+      return json<ActionData>(
+        {
+          error: {
+            id: generateRandomString(),
+            message: `We're having trouble creating your account. Please try again later.`,
           },
-          { status: 401 },
-        )
-      }
-
-      return redirect('/pantry', {
-        headers: {
-          'Set-Cookie': await session.commit(signUpResult.session),
         },
-      })
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log('🚨🚨🚨 Unknown error', error)
-      return json(
-        {
-          message: `We're having trouble creating your account. Please try again later.`,
-          error,
-        },
-        {
-          status: 500,
-        },
+        { status: 401 },
       )
     }
-  } else {
-    return json({ error: 'Invalid credentials' }, { status: 400 })
+
+    return redirect('/pantry', {
+      headers: {
+        'Set-Cookie': await session.commit(signUpResult.session),
+      },
+    })
+  } catch (error) {
+    return json<ActionData>(
+      {
+        error: {
+          id: generateRandomString(),
+          message: `We're having trouble creating your account. Please try again later.`,
+        },
+      },
+      {
+        status: 500,
+      },
+    )
   }
 }
 
 const SignUpRoute: FC = () => {
+  const actionData = useActionData<ActionData>()
+  const { error } = actionData || {}
   const { register, handleSubmit, formState } = useForm<FormValues>({
     defaultValues: {
       email: '',
@@ -135,6 +160,7 @@ const SignUpRoute: FC = () => {
           width: '100%',
         }}
       >
+        <Alert content={error} />
         <Paper
           radius="md"
           p="md"

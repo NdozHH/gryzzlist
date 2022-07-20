@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect } from 'react'
 import type { FC } from 'react'
 
 import { json } from '@remix-run/node'
@@ -23,6 +23,7 @@ import type { ShouldReloadFunction } from '@remix-run/react'
 import globalStyles from '~/styles/global.css'
 
 import ThemeProvider from './components/theme-provider'
+import useRemoveTag from './hooks/useRemoveTag'
 import type { ColorScheme } from './utils/theme-provider'
 import { getColorSchemeSession } from './utils/theme.server'
 
@@ -55,11 +56,11 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const unstable_shouldReload: ShouldReloadFunction = () => false
 
-const App: FC = () => {
+const App: FC = ({ children }) => {
   let location = useLocation()
   let matches = useMatches()
 
-  React.useEffect(() => {
+  useEffect(() => {
     let mounted = isMount
     isMount = false
     if ('serviceWorker' in navigator) {
@@ -102,7 +103,7 @@ const App: FC = () => {
         <Links />
       </head>
       <body>
-        <Outlet />
+        {children}
         <ScrollRestoration />
         <Scripts />
         {process.env.NODE_ENV === 'development' ? <LiveReload /> : null}
@@ -113,10 +114,13 @@ const App: FC = () => {
 
 const AppWithProviders = () => {
   const data = useLoaderData<LoaderData>()
+  useRemoveTag()
 
   return (
     <ThemeProvider providedColorScheme={data?.session?.colorScheme}>
-      <App />
+      <App>
+        <Outlet />
+      </App>
     </ThemeProvider>
   )
 }
