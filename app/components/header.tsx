@@ -19,7 +19,9 @@ const Header: FC = () => {
   const theme = useMantineTheme()
   const { opened, setOpened } = useNavigationContext()
 
-  const handleBurgerButton = () => setOpened(prevValue => !prevValue)
+  const handleBurgerButton = () => {
+    setOpened(prevValue => !prevValue)
+  }
 
   return (
     <Hidden largerThan="sm">
