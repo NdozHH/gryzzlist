@@ -20,7 +20,11 @@ import {
 } from '@mantine/core'
 
 import { json, redirect } from '@remix-run/node'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import type {
+  LoaderFunction,
+  ActionFunction,
+  MetaFunction,
+} from '@remix-run/node'
 import { useCatch, useFetcher, useLoaderData } from '@remix-run/react'
 
 import DatePicker from '~/components/date-picker'
@@ -57,6 +61,12 @@ const useStyles = createStyles(theme => ({
     color: `${theme.white} !important`,
   },
 }))
+
+export const meta: MetaFunction = () => {
+  return {
+    title: 'Calculator | GryzzList',
+  }
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -147,7 +157,7 @@ const Total: FC<TotalProps> = ({ control }) => {
         fontSize: '2.5rem',
         userSelect: 'none',
         [theme.fn.smallerThan('sm')]: {
-          fontSize: '2rem',
+          fontSize: '1.3rem',
         },
       })}
     >
@@ -261,12 +271,15 @@ const CalculatorRoute: FC = () => {
           withBorder
           radius="md"
           px="md"
-          sx={{
+          sx={theme => ({
             height: '4rem',
             display: 'flex',
             alignItems: 'center',
             width: '100%',
-          }}
+            [theme.fn.smallerThan('sm')]: {
+              height: '2.8rem',
+            },
+          })}
         >
           <Group
             position="apart"
@@ -275,7 +288,7 @@ const CalculatorRoute: FC = () => {
               color: theme.colors.violet[6],
             })}
           >
-            <Receipt2 size={40} />
+            <Receipt2 size={30} />
             <Total control={control} />
           </Group>
         </Paper>

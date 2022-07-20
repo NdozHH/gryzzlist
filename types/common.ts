@@ -15,7 +15,7 @@ export type Product = Pick<
 
 export interface AlertNotification {
   message: string
-  id: string
+  id?: string
 }
 
 export type List = Pick<OriginalList, 'createdAt' | 'id' | 'total'>

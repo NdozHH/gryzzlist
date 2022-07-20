@@ -1,26 +1,24 @@
 import type { FC } from 'react'
 
-import { Container, createStyles, Title, Text } from '@mantine/core'
+import { Container, Title, Text } from '@mantine/core'
 
 import { Link } from '@remix-run/react'
 
 import ThemeToggle from '~/components/theme-toggle'
 
-const useStyles = createStyles(() => ({
-  container: {
-    display: 'grid',
-    gridTemplateColumns: '1fr',
-    alignItems: 'center',
-    justifyItems: 'center',
-    height: '100%',
-  },
-}))
-
-const BaseRoute: FC = () => {
-  const { classes } = useStyles()
-
+const IndexRoute: FC = () => {
   return (
-    <Container className={classes.container} fluid px={0}>
+    <Container
+      fluid
+      px={0}
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        alignItems: 'center',
+        justifyItems: 'center',
+        height: '100%',
+      }}
+    >
       <Text
         variant="gradient"
         gradient={{
@@ -41,4 +39,4 @@ const BaseRoute: FC = () => {
   )
 }
 
-export default BaseRoute
+export default IndexRoute

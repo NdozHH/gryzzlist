@@ -13,7 +13,11 @@ import {
 } from '@mantine/core'
 
 import { redirect, json } from '@remix-run/node'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from '@remix-run/node'
 import { useCatch, useLoaderData, useTransition } from '@remix-run/react'
 
 import AddProductModal from '~/components/add-product-modal'
@@ -38,6 +42,12 @@ interface LoaderData {
   products: Product[]
   name: string
   notification?: AlertNotification
+}
+
+export const meta: MetaFunction = () => {
+  return {
+    title: 'Pantry products | GryzzList',
+  }
 }
 
 export const loader: LoaderFunction = async ({ request }) => {

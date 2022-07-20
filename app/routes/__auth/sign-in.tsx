@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { FC } from 'react'
 import { useForm } from 'react-hook-form'
+import invariant from 'tiny-invariant'
 import type { z } from 'zod'
 
 import {
@@ -15,14 +16,39 @@ import {
 } from '@mantine/core'
 
 import { json, redirect } from '@remix-run/node'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
-import { Form, Link, useSubmit, useTransition } from '@remix-run/react'
+import type {
+  LoaderFunction,
+  ActionFunction,
+  MetaFunction,
+} from '@remix-run/node'
+import {
+  Form,
+  Link,
+  useActionData,
+  useSubmit,
+  useTransition,
+} from '@remix-run/react'
+
+import Alert from '~/components/alert'
 
 import { decodeBase64, signIn, verifySessionCookie } from '~/utils/auth.server'
+import { generateRandomString } from '~/utils/database.server'
 import { signInSchema } from '~/utils/form-schemas'
 import { handleSession } from '~/utils/session.server'
 
+import type { AlertNotification } from '~/types/common'
+
 type FormValues = z.infer<typeof signInSchema>
+
+interface ActionData {
+  error?: AlertNotification
+}
+
+export const meta: MetaFunction = () => {
+  return {
+    title: 'Sign in | GryzzList',
+  }
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await handleSession(request)
@@ -39,61 +65,59 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const { email, password } = Object.fromEntries(
-    await request.formData(),
-  ) as FormValues
-  const decodedPassword = decodeBase64(password)
-  const result = signInSchema.safeParse({
-    email,
-    password: decodedPassword,
-  })
+  try {
+    const formData = await request.formData()
+    const email = formData.get('email')
+    const password = formData.get('password')
+    const session = await handleSession(request)
 
-  if (result.success) {
-    try {
-      const session = await handleSession(request)
-      const signInResult = await signIn(
-        request,
-        email.toLowerCase(),
-        decodedPassword,
-      )
+    invariant(email, 'email is required')
+    invariant(password, 'password is required')
 
-      if (!signInResult.session || !signInResult.isSignedIn) {
-        return json(
-          {
-            error: {
-              message:
-                'It looks like your email or password is incorrect. Please check them and try again.',
-            },
+    const decodedPassword = decodeBase64(String(password))
+    const signInResult = await signIn(
+      request,
+      email.toString().toLowerCase(),
+      decodedPassword,
+    )
+
+    if (!signInResult.session || !signInResult.isSignedIn) {
+      return json<ActionData>(
+        {
+          error: {
+            id: generateRandomString(),
+            message:
+              'It looks like your email or password is incorrect. Please check them and try again.',
           },
-          { status: 401 },
-        )
-      }
-
-      return redirect('/pantry', {
-        headers: {
-          'Set-Cookie': await session.commit(signInResult.session),
         },
-      })
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log('❌❌❌', error)
-      return json(
-        {
-          message: `We're having trouble logging you in. Please try again later.`,
-          error,
-        },
-        {
-          status: 500,
-        },
+        { status: 401 },
       )
     }
-  } else {
-    return json({ error: 'Invalid credentials' }, { status: 400 })
+
+    return redirect('/pantry', {
+      headers: {
+        'Set-Cookie': await session.commit(signInResult.session),
+      },
+    })
+  } catch (error) {
+    return json<ActionData>(
+      {
+        error: {
+          id: generateRandomString(),
+          message: `We're having trouble logging you in. Please try again later.`,
+        },
+      },
+      {
+        status: 500,
+      },
+    )
   }
 }
 
-const LoginRoute: FC = () => {
+const SignInRoute: FC = () => {
   const transition = useTransition()
+  const actionData = useActionData<ActionData>()
+  const { error } = actionData || {}
   const { register, handleSubmit, formState } = useForm<FormValues>({
     defaultValues: {
       email: '',
@@ -134,6 +158,7 @@ const LoginRoute: FC = () => {
           width: '100%',
         }}
       >
+        <Alert content={error} />
         <Paper
           radius="md"
           p="md"
@@ -203,4 +228,4 @@ const LoginRoute: FC = () => {
   )
 }
 
-export default LoginRoute
+export default SignInRoute

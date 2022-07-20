@@ -17,6 +17,9 @@ const useStyles = createStyles(theme => ({
     margin: 0,
     width: '100%',
   },
+  overlay: {
+    marginTop: theme.other.headerHeight,
+  },
 }))
 
 const Mobile: FC = () => {
@@ -37,10 +40,8 @@ const Mobile: FC = () => {
           </Group>
         }
         size="md"
-        className={classes.drawer}
-        classNames={{
-          title: classes.title,
-        }}
+        // className={classes.drawer}
+        classNames={classes}
       >
         <Stack
           spacing={0}

@@ -12,6 +12,7 @@ import {
 
 import Hidden from '~/components/hidden'
 
+import LoaderIndicator from './loader-indicator'
 import { useNavigationContext } from './navigation'
 
 const Header: FC = () => {
@@ -45,9 +46,12 @@ const Header: FC = () => {
             aria-label="Open navigation"
           />
           <Text>Application header</Text>
-          <ActionIcon variant="transparent">
-            <Bell color={theme.colors.violet[6]} />
-          </ActionIcon>
+          <Group>
+            <LoaderIndicator size="sm" />
+            <ActionIcon variant="transparent">
+              <Bell color={theme.colors.violet[6]} />
+            </ActionIcon>
+          </Group>
         </Group>
       </MHeader>
     </Hidden>

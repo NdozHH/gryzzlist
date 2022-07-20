@@ -8,13 +8,13 @@ import { useLocation, useMatches } from '@remix-run/react'
 import ThemeToggle from '~/components/theme-toggle'
 
 import Hidden from './hidden'
+import LoaderIndicator from './loader-indicator'
 
 const Appbar: FC = () => {
   const theme = useMantineTheme()
   const matches = useMatches()
   const location = useLocation()
-  const smUp = useMediaQuery(`(min-width: ${theme.breakpoints.sm}px)`, false)
-  const allowedRoutes = ['/pantry', '/lists']
+
   const currentRoute = matches.find(
     route => route.pathname === location.pathname,
   )
@@ -22,19 +22,33 @@ const Appbar: FC = () => {
     matches.find(route => route.id === 'routes/__app' && route.pathname === '/')
       ?.data?.user || {}
   const name = indexMatch?.name?.split(' ')?.[0] || ''
+  const isBaseRoute = location.pathname === '/pantry'
+  const smUp = useMediaQuery(`(min-width: ${theme.breakpoints.sm}px)`, false)
 
   return (
     <Stack spacing={0} px="xl">
       <Hidden smallerThan="sm">
-        <Group position="right" py="md">
+        <Group position={smUp ? 'apart' : 'right'} py="md">
+          {smUp ? <LoaderIndicator /> : null}
           <ThemeToggle />
         </Group>
       </Hidden>
-      {allowedRoutes.includes(currentRoute?.pathname!) || smUp ? (
-        <Stack spacing={0} mt="md">
-          <Text size="md" color="dimmed" transform="capitalize">
-            Hi {name},
-          </Text>
+
+      {smUp || (!smUp && isBaseRoute) ? (
+        <Stack
+          spacing={0}
+          mb="sm"
+          sx={theme => ({
+            [theme.fn.smallerThan('sm')]: {
+              marginTop: `${theme.spacing.md}px`,
+            },
+          })}
+        >
+          {isBaseRoute ? (
+            <Text size="md" color="dimmed" transform="capitalize">
+              Hi {name},
+            </Text>
+          ) : null}
           <Text
             sx={theme => ({
               fontSize: '2rem',

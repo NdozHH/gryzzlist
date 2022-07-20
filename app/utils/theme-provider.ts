@@ -12,7 +12,7 @@ type ThemeContextType = [
 
 interface ThemeProviderProps {
   children: ReactNode
-  providedColorScheme: ColorScheme | undefined
+  providedColorScheme?: ColorScheme
 }
 
 const themes = Object.values(ColorScheme)
