@@ -50,7 +50,7 @@ const ListCard: FC<ListCardProps> = ({
         listId: id,
       },
       {
-        action: '/lists',
+        action: '/groceries-history',
         method: 'post',
       },
     )

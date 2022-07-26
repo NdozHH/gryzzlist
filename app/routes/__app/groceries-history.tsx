@@ -91,7 +91,7 @@ export const action: ActionFunction = async ({ request }) => {
 
     session.instance.flash('notification', `List has been deleted`)
 
-    return redirect('/lists', {
+    return redirect('/groceries-history', {
       headers: {
         'Set-Cookie': await session.commit(),
       },
@@ -123,7 +123,6 @@ const ListsRoute: FC = () => {
       handleId="groceries-history"
       sx={{
         justifyContent: 'center',
-        flexDirection: 'column',
       }}
     >
       <Stack

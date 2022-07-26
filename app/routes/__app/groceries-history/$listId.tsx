@@ -4,8 +4,8 @@ import invariant from 'tiny-invariant'
 
 import { Box, Stack, Text, useMantineTheme } from '@mantine/core'
 
-import { json, redirect } from '@remix-run/node'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
 import { Link, useCatch, useLoaderData } from '@remix-run/react'
 
 import ErrorContainer from '~/components/error-container'
@@ -14,7 +14,7 @@ import RouteContainer from '~/components/route-container'
 
 import useRouteData from '~/hooks/useRouteData'
 
-import { deleteList, getListProducts } from '~/utils/database.server'
+import { getListProducts } from '~/utils/database.server'
 import { handleSession } from '~/utils/session.server'
 
 import type { BaseLoaderData, Handle, Product } from '~/types/common'
@@ -39,40 +39,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
     const products = await getListProducts(listId)
 
-    return json<LoaderData>(
-      {
-        name: 'List',
-        products,
-      },
-      {
-        headers: {
-          'Set-Cookie': await session.commit(),
-        },
-      },
-    )
-  } catch (error) {
-    throw new Response('Unexpected error', {
-      status: 500,
-    })
-  }
-}
-
-export const action: ActionFunction = async ({ request }) => {
-  try {
-    const formData = await request.formData()
-    const session = await handleSession(request)
-    const listId = formData.get('listId')
-
-    invariant(listId, 'listId is required')
-
-    await deleteList(String(listId))
-
-    session.instance.flash('notification', `List has been deleted`)
-
-    return redirect('/lists', {
-      headers: {
-        'Set-Cookie': await session.commit(),
-      },
+    return json<LoaderData>({
+      name: 'List',
+      products,
     })
   } catch (error) {
     throw new Response('Unexpected error', {
