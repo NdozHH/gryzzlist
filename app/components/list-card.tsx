@@ -64,7 +64,7 @@ const ListCard: FC<ListCardProps> = ({
         p="md"
         component={Link}
         prefetch="intent"
-        to={`/lists/${id}`}
+        to={`/groceries-history/${id}`}
         sx={theme => ({
           cursor: 'pointer',
           borderColor: isSelected ? theme.colors.violet[6] : undefined,

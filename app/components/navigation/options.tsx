@@ -30,8 +30,8 @@ const Options: FC<OptionsProps> = ({ onCloseDrawer }) => {
         onClick={onCloseDrawer}
       />
       <Option
-        to="lists"
-        label="Lists"
+        to="groceries-history"
+        label="Groceries history"
         leftIcon={<CheckupList size={25} />}
         onClick={onCloseDrawer}
       />

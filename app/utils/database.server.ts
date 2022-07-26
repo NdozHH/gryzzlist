@@ -3,10 +3,19 @@ import type { z } from 'zod'
 
 import prisma from '~/db/prisma.server'
 
-import type { calculatorSchema, productSchema } from './form-schemas'
+import type {
+  calculatorSchema,
+  fillPantrySchema,
+  productSchema,
+} from './form-schemas'
 
 type ProductValues = z.infer<typeof productSchema> & {
   userId: string
+  productId?: string
+}
+
+type UpdateProductValues = z.infer<typeof productSchema> & {
+  productId: string
 }
 
 type ListValues = z.infer<typeof calculatorSchema> & {
@@ -14,28 +23,31 @@ type ListValues = z.infer<typeof calculatorSchema> & {
   userId: string
 }
 
-const createProduct = async ({
-  name,
-  number,
-  expiryDate,
-  userId,
-}: ProductValues) => {
+type PantryValues = z.infer<typeof fillPantrySchema> & {
+  userId: string
+}
+
+const createProduct = async ({ name, number, userId }: ProductValues) => {
   const product = await prisma.product.create({
     data: {
       name,
       number,
-      expiryDate,
       userId,
     },
     select: {
       id: true,
       name: true,
       number: true,
-      expiryDate: true,
     },
   })
 
   return product
+}
+
+const fillPantry = async ({ products, userId }: PantryValues) => {
+  await prisma.product.createMany({
+    data: products.map(product => ({ ...product, userId })),
+  })
 }
 
 const getProducts = async (userId: string) => {
@@ -47,7 +59,6 @@ const getProducts = async (userId: string) => {
       id: true,
       name: true,
       number: true,
-      expiryDate: true,
       price: true,
     },
   })
@@ -59,6 +70,27 @@ const deleteProduct = async (productId: string) => {
   const product = await prisma.product.delete({
     where: {
       id: productId,
+    },
+    select: {
+      name: true,
+    },
+  })
+
+  return product
+}
+
+const updateProduct = async ({
+  name,
+  number,
+  productId,
+}: UpdateProductValues) => {
+  const product = await prisma.product.update({
+    where: {
+      id: productId,
+    },
+    data: {
+      name,
+      number,
     },
     select: {
       name: true,
@@ -150,8 +182,10 @@ const generateRandomString = () => crypto.randomBytes(4).toString('hex')
 
 export {
   createProduct,
+  fillPantry,
   getProducts,
   deleteProduct,
+  updateProduct,
   createList,
   getUser,
   getLists,

@@ -1,53 +1,111 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import type { FC } from 'react'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
+import { Plus } from 'tabler-icons-react'
 import type { z } from 'zod'
 
-import { Button, Group, Modal, Stack, TextInput } from '@mantine/core'
+import {
+  ActionIcon,
+  Box,
+  Button,
+  createStyles,
+  Group,
+  Modal,
+  Paper,
+  Stack,
+  Text,
+  TextInput,
+} from '@mantine/core'
 import type { ModalProps } from '@mantine/core'
 
-import { Form, useSubmit, useTransition } from '@remix-run/react'
+import { useFetcher } from '@remix-run/react'
 
-import { productSchema } from '~/utils/form-schemas'
+import useMobile from '~/hooks/useMobile'
+
+import { fillPantrySchema } from '~/utils/form-schemas'
 
 import { ActionType } from '~/types/common'
 
-import DatePicker from './date-picker'
 import NumberInput from './number-input'
 
-type FormValues = z.infer<typeof productSchema>
+type FormValues = z.infer<typeof fillPantrySchema>
+
+const useStyles = createStyles(theme => ({
+  weekend: {
+    color: `${theme.colors.violet[6]} !important`,
+  },
+  selected: {
+    color: `${theme.white} !important`,
+  },
+  modal: {
+    minHeight: '100vh',
+  },
+  modalInner: {
+    padding: `${theme.spacing.md}px`,
+    scrollbarWidth: 'none',
+    '::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
+}))
 
 const AddProductModal: FC<ModalProps> = props => {
+  const { classes } = useStyles()
+  const fetcher = useFetcher()
   const { register, handleSubmit, formState, control, reset } =
     useForm<FormValues>({
       defaultValues: {
-        name: '',
-        number: 1,
-        expiryDate: undefined,
+        products: [
+          {
+            name: '',
+            number: 1,
+          },
+        ],
       },
-      resolver: zodResolver(productSchema),
+      resolver: zodResolver(fillPantrySchema),
     })
+  const { fields, prepend, remove, update } = useFieldArray({
+    name: 'products',
+    control,
+  })
   const { errors } = formState
-  const submit = useSubmit()
-  const transition = useTransition()
-  const { onClose, ...restProps } = props
-  const isSubmitting = transition.state === 'submitting'
+  const isMobile = useMobile()
+  const { onClose: onCloseModal, ...restProps } = props
+  const hasOneItem = fields.length === 1
+  const isSubmitting = fetcher.state === 'submitting'
+  const isDone = fetcher.state === 'loading'
 
   useEffect(() => {
-    if (isSubmitting) {
+    if (isDone) {
+      onCloseModal()
       reset()
-      onClose()
     }
-  }, [onClose, reset, isSubmitting])
+  }, [isDone, onCloseModal, reset])
 
-  const onSubmit = ({ name, number, expiryDate }: FormValues) => {
-    submit(
+  const onAddProduct = () => {
+    prepend({
+      name: '',
+      number: 1,
+    })
+  }
+
+  const onRemoveProduct = (index: number) => {
+    if (!hasOneItem) {
+      remove(index)
+    } else {
+      update(0, {
+        name: '',
+        number: 1,
+      })
+    }
+  }
+
+  const onSubmit = ({ products }: FormValues) => {
+    fetcher.submit(
       {
         actionType: ActionType.CREATE,
-        name,
-        number: number!.toString(),
-        ...(expiryDate ? { expiryDate: expiryDate.toUTCString() } : {}),
+        products: JSON.stringify(products),
       },
       {
         method: 'post',
@@ -56,59 +114,102 @@ const AddProductModal: FC<ModalProps> = props => {
     )
   }
 
+  const onClose = () => {
+    onCloseModal()
+    reset()
+  }
+
   return (
     <Modal
-      centered
       radius="md"
-      title="Add new product"
-      size="sm"
+      title={<Text size="lg">Fill the pantry</Text>}
+      size={isMobile ? 'sm' : 'lg'}
       onClose={onClose}
       {...restProps}
+      classNames={{
+        inner: classes.modalInner,
+        modal: classes.modal,
+      }}
     >
-      <Form method="post" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Stack>
-          <TextInput
-            id="name"
-            placeholder="Enter product name"
-            label="Name"
-            radius="md"
-            size="sm"
-            required
+      <fetcher.Form method="post" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Group position="apart" mb="lg">
+          <ActionIcon
             variant="default"
-            error={errors?.name?.message}
-            {...register('name')}
-          />
-          <NumberInput
-            id="number"
-            description="How much of this product do you have?"
-            control={control}
-            name="number"
-            size="sm"
-            error={errors?.number?.message}
-          />
-          <DatePicker
-            id="expiryDate"
-            label="Expiry date"
-            placeholder="Enter expiry date"
-            name="expiryDate"
-            size="sm"
-            control={control}
-            description="When does this product expire?"
-            error={errors?.expiryDate?.message}
-          />
-          <Group position="center" mt="md">
-            <Button
-              type="submit"
-              radius="md"
-              size="md"
-              variant="gradient"
-              gradient={{ from: 'violet', to: 'grape', deg: 105 }}
-            >
-              Add product
-            </Button>
-          </Group>
-        </Stack>
-      </Form>
+            size="md"
+            radius="md"
+            onClick={onAddProduct}
+            title="Add product to pantry"
+          >
+            <Plus />
+          </ActionIcon>
+          <Button
+            type="submit"
+            radius="md"
+            size={isMobile ? 'sm' : 'md'}
+            variant="gradient"
+            gradient={{ from: 'violet', to: 'grape', deg: 105 }}
+            loading={isSubmitting}
+            title="Save pantry"
+          >
+            Save
+          </Button>
+        </Group>
+        <Box
+          sx={theme => ({
+            display: 'grid',
+            overflowY: 'auto',
+            gap: `${theme.spacing.md}px`,
+            gridTemplateColumns: '1fr',
+            scrollbarWidth: 'none',
+            '::-webkit-scrollbar': {
+              display: 'none',
+            },
+            [`@media (min-width: ${theme.breakpoints.sm}px)`]: {
+              gridTemplateColumns: '1fr 1fr',
+            },
+          })}
+        >
+          {fields.map((field, index) => {
+            return (
+              <Paper key={field.id} radius="md" withBorder p="sm">
+                <Stack spacing="sm">
+                  <TextInput
+                    id="name"
+                    placeholder="Enter product name"
+                    label={isMobile ? undefined : 'Name'}
+                    radius="md"
+                    size={isMobile ? 'xs' : 'sm'}
+                    required
+                    variant="default"
+                    error={errors?.products?.[index]?.name?.message}
+                    {...register(`products.${index}.name`)}
+                  />
+                  <NumberInput
+                    id="number"
+                    label={isMobile ? undefined : 'Number'}
+                    control={control}
+                    variant="default"
+                    name={`products.${index}.number`}
+                    size={isMobile ? 'xs' : 'sm'}
+                    error={errors?.products?.[index]?.number?.message}
+                  />
+                  <Group position="center">
+                    <Button
+                      size="xs"
+                      radius="md"
+                      variant="subtle"
+                      color="gray"
+                      onClick={() => onRemoveProduct(index)}
+                    >
+                      Remove
+                    </Button>
+                  </Group>
+                </Stack>
+              </Paper>
+            )
+          })}
+        </Box>
+      </fetcher.Form>
     </Modal>
   )
 }

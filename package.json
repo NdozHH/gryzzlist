@@ -4,7 +4,6 @@
   "scripts": {
     "build": "npm-run-all -p build:*",
     "dev": "npm-run-all -p dev:*",
-    "dev:quirrel": "npm-run-all -p dev:* quirrel",
     "build:remix": "cross-env NODE_ENV=production remix build",
     "build:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --minify --bundle --format=esm --define:process.env.NODE_ENV='\"production\"'",
     "dev:remix": "cross-env NODE_ENV=development remix dev",
@@ -17,8 +16,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "2.9.5",
-    "@knocklabs/node": "0.4.9",
-    "@knocklabs/react-notification-feed": "0.7.0",
     "@mantine/core": "4.2.12",
     "@mantine/dates": "4.2.12",
     "@mantine/hooks": "4.2.12",
@@ -38,7 +35,6 @@
     "firebase-admin": "11.0.0",
     "node-persist": "3.1.0",
     "npm-run-all": "4.1.5",
-    "quirrel": "1.9.3",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "7.33.1",

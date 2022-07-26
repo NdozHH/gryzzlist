@@ -9,7 +9,12 @@ const LoaderIndicator: FC<LoaderProps> = ({ size = 28 }) => {
   const transition = useTransition()
 
   return (
-    <div>{transition.state === 'idle' ? null : <Loader size={size} />}</div>
+    <Loader
+      size={size}
+      sx={{
+        visibility: transition.state === 'idle' ? 'hidden' : 'visible',
+      }}
+    />
   )
 }
 
