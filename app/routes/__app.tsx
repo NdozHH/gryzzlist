@@ -13,6 +13,18 @@ import { verifySession } from '~/utils/auth.server'
 import { getUser } from '~/utils/database.server'
 import { handleSession } from '~/utils/session.server'
 
+import type { User } from '~/db/prisma.server'
+
+import type { Handle } from '~/types/common'
+
+export interface LoaderData {
+  user: User
+}
+
+export const handle: Handle = {
+  id: 'app',
+}
+
 export const loader: LoaderFunction = async ({ request }) => {
   await verifySession(request)
 
@@ -60,13 +72,15 @@ const MainLayout: FC = () => {
           sx={theme => ({
             height: '100%',
             padding: `0 ${theme.spacing.xl}px`,
-            marginTop: `${theme.spacing.lg}px`,
             display: 'flex',
             flexDirection: 'column',
             overflowY: 'auto',
+            scrollbarWidth: 'none',
+            '::-webkit-scrollbar': {
+              display: 'none',
+            },
             [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
               padding: `0 ${theme.spacing.sm}px`,
-              marginTop: `${theme.spacing.sm}px`,
               height: '100%',
             },
           })}

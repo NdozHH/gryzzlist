@@ -22,10 +22,8 @@ const NumberInput = <T,>(props: NumberInputProps<T>) => {
             name={name}
             min={1}
             size="md"
-            label="Number"
             required
             radius="md"
-            variant="default"
             value={value as number}
             onChange={newValue => {
               onChange(newValue)

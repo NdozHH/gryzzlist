@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import invariant from 'tiny-invariant'
 
-import { Box, Container, Stack, Text, useMantineTheme } from '@mantine/core'
+import { Stack, Text } from '@mantine/core'
 
 import { json, redirect } from '@remix-run/node'
 import type {
@@ -13,8 +13,10 @@ import { Outlet, useCatch, useLoaderData } from '@remix-run/react'
 
 import ErrorContainer from '~/components/error-container'
 import ListCard from '~/components/list-card'
+import RouteContainer from '~/components/route-container'
 
 import useNotification from '~/hooks/useNotification'
+import useRouteData from '~/hooks/useRouteData'
 
 import {
   deleteList,
@@ -23,12 +25,16 @@ import {
 } from '~/utils/database.server'
 import { handleSession } from '~/utils/session.server'
 
-import type { AlertNotification, List } from '~/types/common'
+import type { AlertNotification, Handle, List } from '~/types/common'
 
 interface LoaderData {
   name: string
   notification?: AlertNotification
   lists: List[]
+}
+
+export const handle: Handle = {
+  id: 'groceries-history',
 }
 
 export const meta: MetaFunction = () => {
@@ -57,7 +63,7 @@ export const loader: LoaderFunction = async ({ request }) => {
               },
             }
           : {}),
-        name: 'Previous lists',
+        name: 'Groceries history',
         lists,
       },
       {
@@ -104,54 +110,32 @@ export const CatchBoundary = () => {
 }
 
 const ListsRoute: FC = () => {
-  const theme = useMantineTheme()
+  const listDetailRoute = useRouteData('list-detail')
   const loaderData = useLoaderData<LoaderData>()
   const { notification, lists } = loaderData
   const isEmpty = lists.length === 0
   useNotification(notification)
 
+  if (listDetailRoute) return <Outlet />
+
   return (
-    <Container
-      fluid
-      px={0}
+    <RouteContainer
+      handleId="groceries-history"
       sx={{
-        height: '100%',
-        display: 'flex',
         justifyContent: 'center',
-        [`@media (max-width: ${theme.breakpoints.md}px)`]: {
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-        },
+        flexDirection: 'column',
       }}
     >
       <Stack
         spacing="md"
         justify={isEmpty ? 'center' : 'flex-start'}
         align={isEmpty ? 'center' : 'stretch'}
-        sx={theme => ({
+        pb="xl"
+        sx={{
           width: '100%',
           maxWidth: '34.375rem',
-          paddingBottom: `${theme.spacing.md}px`,
-          paddingRight: `${theme.spacing.sm}px`,
-          overflow: 'hidden',
           height: '100%',
-          overflowY: 'auto',
-          borderRight: `1px solid ${
-            theme.colorScheme === 'dark'
-              ? theme.colors.dark[6]
-              : theme.colors.gray[2]
-          }`,
-          [`@media (max-width: ${theme.breakpoints.md}px)`]: {
-            borderRight: 'none',
-            borderBottom: `1px solid ${
-              theme.colorScheme === 'dark'
-                ? theme.colors.dark[6]
-                : theme.colors.gray[2]
-            }`,
-            paddingRight: 0,
-          },
-        })}
+        }}
       >
         {!isEmpty ? (
           <>
@@ -163,23 +147,7 @@ const ListsRoute: FC = () => {
           <Text>You don't have any saved lists</Text>
         )}
       </Stack>
-      <Box
-        sx={theme => ({
-          width: '100%',
-          maxWidth: '34.375rem',
-          paddingBottom: `${theme.spacing.md}px`,
-          paddingLeft: `${theme.spacing.sm}px`,
-          overflow: 'hidden',
-          height: '100%',
-          [`@media (max-width: ${theme.breakpoints.md}px)`]: {
-            paddingLeft: 0,
-            paddingTop: `${theme.spacing.sm}px`,
-          },
-        })}
-      >
-        <Outlet />
-      </Box>
-    </Container>
+    </RouteContainer>
   )
 }
 

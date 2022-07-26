@@ -10,6 +10,9 @@ import LogoutButton from '../logout-button'
 import Options from './options'
 
 const useStyles = createStyles(theme => ({
+  root: {
+    marginTop: theme.other.headerHeight,
+  },
   drawer: {
     marginTop: theme.other.headerHeight,
   },
@@ -40,7 +43,6 @@ const Mobile: FC = () => {
           </Group>
         }
         size="md"
-        // className={classes.drawer}
         classNames={classes}
       >
         <Stack

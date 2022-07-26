@@ -10,8 +10,6 @@ import type { z } from 'zod'
 import {
   Box,
   Button,
-  Container,
-  createStyles,
   Group,
   Paper,
   Stack,
@@ -27,9 +25,9 @@ import type {
 } from '@remix-run/node'
 import { useCatch, useFetcher, useLoaderData } from '@remix-run/react'
 
-import DatePicker from '~/components/date-picker'
 import ErrorContainer from '~/components/error-container'
 import NumberInput from '~/components/number-input'
+import RouteContainer from '~/components/route-container'
 
 import useNotification from '~/hooks/useNotification'
 
@@ -38,7 +36,7 @@ import { calculatorSchema } from '~/utils/form-schemas'
 import type { calculatorItemSchema } from '~/utils/form-schemas'
 import { handleSession } from '~/utils/session.server'
 
-import type { AlertNotification } from '~/types/common'
+import type { AlertNotification, Handle } from '~/types/common'
 
 type FormValues = z.infer<typeof calculatorSchema>
 
@@ -53,14 +51,9 @@ interface LoaderData {
   notification?: AlertNotification
 }
 
-const useStyles = createStyles(theme => ({
-  weekend: {
-    color: `${theme.colors.violet[6]} !important`,
-  },
-  selected: {
-    color: `${theme.white} !important`,
-  },
-}))
+export const handle: Handle = {
+  id: 'calculator',
+}
 
 export const meta: MetaFunction = () => {
   return {
@@ -167,7 +160,6 @@ const Total: FC<TotalProps> = ({ control }) => {
 }
 
 const CalculatorRoute: FC = () => {
-  const { classes, cx } = useStyles()
   const fetcher = useFetcher()
   const loaderData = useLoaderData<LoaderData>()
   const { notification } = loaderData
@@ -183,7 +175,6 @@ const CalculatorRoute: FC = () => {
         {
           name: '',
           price: undefined,
-          expiryDate: undefined,
           number: 1,
         },
       ],
@@ -208,7 +199,6 @@ const CalculatorRoute: FC = () => {
   const onAddProduct = () => {
     prepend({
       name: '',
-      expiryDate: undefined,
       price: undefined,
       number: 1,
     })
@@ -220,7 +210,6 @@ const CalculatorRoute: FC = () => {
     } else {
       update(0, {
         name: '',
-        expiryDate: undefined,
         // @ts-ignore
         price: undefined,
         number: 1,
@@ -247,25 +236,19 @@ const CalculatorRoute: FC = () => {
   }
 
   return (
-    <Container
-      fluid
-      px={0}
+    <RouteContainer
+      handleId="calculator"
       sx={{
-        height: '100%',
-        display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
       }}
     >
       <Box
-        sx={theme => ({
+        pb="xl"
+        sx={{
           width: '100%',
           maxWidth: '34.375rem',
-          paddingBottom: `${theme.spacing.xl}px`,
-          position: 'relative',
-          overflow: 'hidden',
-          height: '100%',
-        })}
+        }}
       >
         <Paper
           withBorder
@@ -296,14 +279,8 @@ const CalculatorRoute: FC = () => {
           method="post"
           noValidate
           onSubmit={handleSubmit(onSubmit)}
-          style={{ height: '100%' }}
         >
-          <Stack
-            sx={{
-              height: '100%',
-            }}
-            spacing={0}
-          >
+          <Stack spacing={0}>
             <Group position="apart" pt="md" pb="lg">
               <Button
                 type="submit"
@@ -328,14 +305,8 @@ const CalculatorRoute: FC = () => {
               sx={theme => ({
                 display: 'grid',
                 flexWrap: 'wrap',
-                paddingBottom: '4.5rem',
-                overflowY: 'auto',
                 gap: theme.spacing.md,
                 gridTemplateColumns: '1fr',
-                scrollbarWidth: 'none',
-                '::-webkit-scrollbar': {
-                  display: 'none',
-                },
                 [`@media (min-width: ${theme.breakpoints.sm}px)`]: {
                   gridTemplateColumns: '1fr 1fr',
                 },
@@ -367,6 +338,7 @@ const CalculatorRoute: FC = () => {
                             enterKeyHint="done"
                             inputMode="decimal"
                             noClampOnBlur
+                            variant="default"
                             precision={2}
                             label={undefined}
                             placeholder="Enter price"
@@ -385,6 +357,7 @@ const CalculatorRoute: FC = () => {
                             inputMode="numeric"
                             label={undefined}
                             placeholder="Enter number"
+                            variant="default"
                             size="xs"
                             name={`products.${index}.number`}
                             error={errors?.products?.[index]?.number?.message}
@@ -393,24 +366,6 @@ const CalculatorRoute: FC = () => {
                             }}
                           />
                         </Group>
-                        <DatePicker
-                          id="expiryDate"
-                          placeholder="Enter expiry date"
-                          size="xs"
-                          clearable={false}
-                          enterKeyHint="done"
-                          minDate={new Date()}
-                          inputMode="none"
-                          control={control}
-                          name={`products.${index}.expiryDate`}
-                          error={errors?.products?.[index]?.expiryDate?.message}
-                          dayClassName={(date, modifiers) =>
-                            cx({
-                              [classes.weekend]: modifiers.weekend,
-                              [classes.selected]: modifiers.selected,
-                            })
-                          }
-                        />
                         <Group position="center">
                           <Button
                             size="xs"
@@ -431,7 +386,7 @@ const CalculatorRoute: FC = () => {
           </Stack>
         </fetcher.Form>
       </Box>
-    </Container>
+    </RouteContainer>
   )
 }
 

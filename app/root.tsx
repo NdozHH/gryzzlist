@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import type { FC } from 'react'
 
+import { useMantineTheme } from '@mantine/core'
+
 import { json } from '@remix-run/node'
 import type {
   LinksFunction,
@@ -57,6 +59,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const unstable_shouldReload: ShouldReloadFunction = () => false
 
 const App: FC = ({ children }) => {
+  const theme = useMantineTheme()
   let location = useLocation()
   let matches = useMatches()
 
@@ -98,6 +101,11 @@ const App: FC = ({ children }) => {
   return (
     <html lang="en">
       <head>
+        <meta name="theme-color" content={theme.colors.violet[8]} />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
         <Meta />
         <link rel="manifest" href="/resources/manifest.webmanifest" />
         <Links />

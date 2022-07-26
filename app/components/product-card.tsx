@@ -1,46 +1,117 @@
-import dayjs from 'dayjs'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState } from 'react'
 import type { FC } from 'react'
-import { Trash } from 'tabler-icons-react'
+import { useForm } from 'react-hook-form'
+import { Check, Dots, Edit, Trash, X } from 'tabler-icons-react'
+import type { z } from 'zod'
 
 import {
   ActionIcon,
+  createStyles,
   Group,
+  Menu,
   Paper,
-  Stack,
   Text,
-  useMantineTheme,
+  TextInput,
 } from '@mantine/core'
+import type { MenuItemProps } from '@mantine/core'
 
 import { useFetcher } from '@remix-run/react'
 
-import { getExpiresLabel } from '~/utils/browser'
+import { productSchema } from '~/utils/form-schemas'
 
 import { ActionType } from '~/types/common'
 import type { Product } from '~/types/common'
 
+import NumberInput from './number-input'
+
 type ProductCardProps = Omit<Product, 'price'> & {
   hideDelete?: boolean
+}
+
+type ItemProps = Omit<MenuItemProps<'button'>, 'children'> & {
+  label: string
+  id: string
+}
+
+type CardMenuProps = {
+  options: ItemProps[]
+}
+
+type FormValues = z.infer<typeof productSchema>
+
+const useStyles = createStyles(theme => ({
+  numberInput: {
+    width: '3rem',
+    paddingLeft: `${theme.spacing.xs}px`,
+    paddingRight: `${theme.spacing.xs}px`,
+    textAlign: 'center',
+  },
+  nameInput: {
+    [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
+      maxWidth: '12rem',
+    },
+  },
+}))
+
+const CardMenu: FC<CardMenuProps> = ({ options }) => {
+  return (
+    <Menu
+      placement="end"
+      withArrow
+      withinPortal={false}
+      radius="md"
+      size="xs"
+      control={
+        <ActionIcon radius="md">
+          <Dots size={18} />
+        </ActionIcon>
+      }
+    >
+      {options.map(option => {
+        const { id, label, ...restOption } = option
+        return (
+          <Menu.Item key={id} {...restOption}>
+            {label}
+          </Menu.Item>
+        )
+      })}
+    </Menu>
+  )
 }
 
 const ProductCard: FC<ProductCardProps> = ({
   id,
   name,
   number,
-  expiryDate,
   hideDelete = false,
 }) => {
-  const theme = useMantineTheme()
+  const { classes } = useStyles()
   const fetcher = useFetcher()
-  const formattedDate = dayjs(expiryDate).format('MMMM DD, YYYY')
-  const currentDate = dayjs()
-  const difference = expiryDate
-    ? dayjs(expiryDate).diff(currentDate, 'days') + 1
-    : 0
-  const label = getExpiresLabel(
-    difference,
-    expiryDate ? formattedDate : 'undated',
-  )
-  const isDeleting = fetcher.submission?.formData.get('productId') === id
+  const [editMode, setEditMode] = useState(false)
+  const { register, handleSubmit, formState, control, reset } =
+    useForm<FormValues>({
+      defaultValues: {
+        name,
+        number,
+      },
+      resolver: zodResolver(productSchema),
+    })
+  const { errors, isDirty } = formState
+  const submittedActionType = fetcher.submission?.formData.get('actionType')
+  const submittedProductId = fetcher.submission?.formData.get('productId')
+  const isDeleting =
+    submittedActionType === ActionType.DELETE && submittedProductId === id
+  const isUpdating =
+    submittedActionType === ActionType.EDIT && submittedProductId === id
+  const isDone = fetcher.state === 'loading'
+
+  useEffect(() => {
+    if (isDone) {
+      reset()
+      setEditMode(false)
+    }
+  }, [isDone, reset])
 
   const onDelete = () => {
     fetcher.submit(
@@ -55,41 +126,109 @@ const ProductCard: FC<ProductCardProps> = ({
     )
   }
 
+  const onUpdate = ({ name, number }: FormValues) => {
+    if (isDirty) {
+      fetcher.submit(
+        {
+          actionType: ActionType.EDIT,
+          productId: id,
+          name,
+          number: number.toString(),
+        },
+        {
+          method: 'post',
+          action: '/pantry',
+        },
+      )
+    } else {
+      setEditMode(false)
+    }
+  }
+
+  const options: ItemProps[] = [
+    {
+      id: 'edit',
+      label: 'Edit',
+      icon: <Edit size={16} />,
+      onClick: () => setEditMode(true),
+    },
+    {
+      id: 'delete',
+      label: 'Delete',
+      color: 'red',
+      icon: <Trash size={16} />,
+      onClick: onDelete,
+    },
+  ]
+
   return (
-    <fetcher.Form>
-      <Paper radius="md" withBorder p="md" hidden={isDeleting}>
+    <fetcher.Form onSubmit={handleSubmit(onUpdate)} hidden={isDeleting}>
+      <Paper radius="md" withBorder p="md">
         <Group position="apart">
-          <Group>
-            <Text
-              sx={{
-                fontSize: '1.3rem',
-              }}
-              color="violet"
-            >
-              x{number}
-            </Text>
-            <Stack spacing={0}>
+          <Group spacing="sm">
+            {!editMode ? (
+              <Text
+                sx={{
+                  fontSize: '1.3rem',
+                }}
+                color="violet"
+              >
+                x{number}
+              </Text>
+            ) : (
+              <NumberInput
+                aria-label="Product number"
+                id="number"
+                control={control}
+                enterKeyHint="done"
+                inputMode="numeric"
+                placeholder="#"
+                size="sm"
+                name="number"
+                variant="default"
+                hideControls
+                error={errors?.number?.message}
+                classNames={{
+                  input: classes.numberInput,
+                }}
+              />
+            )}
+            {!editMode ? (
               <Text size="lg" transform="capitalize">
                 {name}
               </Text>
-              <Text size="sm" color="dimmed">
-                Expires: {label}
-              </Text>
-            </Stack>
+            ) : (
+              <TextInput
+                aria-label="Product name"
+                id="name"
+                placeholder="Product name"
+                radius="md"
+                size="sm"
+                enterKeyHint="done"
+                variant="default"
+                inputMode="text"
+                error={errors?.name?.message}
+                {...register('name')}
+                classNames={{
+                  input: classes.nameInput,
+                }}
+              />
+            )}
           </Group>
           {!hideDelete ? (
-            <Group>
-              <ActionIcon
-                radius="md"
-                variant="default"
-                sx={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                }}
-                onClick={onDelete}
-              >
-                <Trash size={20} color={theme.colors.gray[6]} />
-              </ActionIcon>
+            <Group position="center">
+              {editMode ? (
+                <ActionIcon
+                  radius="md"
+                  variant="default"
+                  type="submit"
+                  loading={isUpdating}
+                >
+                  {isDirty ? <Check size={18} /> : <X size={18} />}
+                </ActionIcon>
+              ) : (
+                <CardMenu options={options} />
+              )}
             </Group>
           ) : null}
         </Group>

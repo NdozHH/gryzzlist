@@ -1,8 +1,6 @@
 import type { FC } from 'react'
-import { Bell } from 'tabler-icons-react'
 
 import {
-  ActionIcon,
   Burger,
   Group,
   Header as MHeader,
@@ -19,7 +17,9 @@ const Header: FC = () => {
   const theme = useMantineTheme()
   const { opened, setOpened } = useNavigationContext()
 
-  const handleBurgerButton = () => setOpened(prevValue => !prevValue)
+  const handleBurgerButton = () => {
+    setOpened(prevValue => !prevValue)
+  }
 
   return (
     <Hidden largerThan="sm">
@@ -46,12 +46,7 @@ const Header: FC = () => {
             aria-label="Open navigation"
           />
           <Text>Application header</Text>
-          <Group>
-            <LoaderIndicator size="sm" />
-            <ActionIcon variant="transparent">
-              <Bell color={theme.colors.violet[6]} />
-            </ActionIcon>
-          </Group>
+          <LoaderIndicator size="sm" />
         </Group>
       </MHeader>
     </Hidden>

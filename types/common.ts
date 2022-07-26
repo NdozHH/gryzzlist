@@ -6,12 +6,10 @@ import type {
 export enum ActionType {
   CREATE = 'create',
   DELETE = 'delete',
+  EDIT = 'edit',
 }
 
-export type Product = Pick<
-  OriginalProduct,
-  'id' | 'name' | 'number' | 'expiryDate' | 'price'
->
+export type Product = Pick<OriginalProduct, 'id' | 'name' | 'number' | 'price'>
 
 export interface AlertNotification {
   message: string
@@ -19,3 +17,11 @@ export interface AlertNotification {
 }
 
 export type List = Pick<OriginalList, 'createdAt' | 'id' | 'total'>
+
+export interface BaseLoaderData {
+  name: string
+}
+
+export interface Handle {
+  id: string
+}

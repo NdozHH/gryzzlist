@@ -1,16 +1,10 @@
 import { useState } from 'react'
+import type { FC } from 'react'
 import { Search } from 'tabler-icons-react'
 import invariant from 'tiny-invariant'
+import type { z } from 'zod'
 
-import {
-  Box,
-  Button,
-  Container,
-  Group,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core'
+import { Box, Button, Group, Stack, Text, TextInput } from '@mantine/core'
 
 import { redirect, json } from '@remix-run/node'
 import type {
@@ -23,25 +17,42 @@ import { useCatch, useLoaderData, useTransition } from '@remix-run/react'
 import AddProductModal from '~/components/add-product-modal'
 import ErrorContainer from '~/components/error-container'
 import ProductCard from '~/components/product-card'
+import RouteContainer from '~/components/route-container'
 
 import useNotification from '~/hooks/useNotification'
+import useRouteData from '~/hooks/useRouteData'
 
 import { getFilteredProducts } from '~/utils/browser'
 import {
-  createProduct,
   deleteProduct,
+  fillPantry,
   generateRandomString,
   getProducts,
+  updateProduct,
 } from '~/utils/database.server'
+import type { productSchema } from '~/utils/form-schemas'
 import { handleSession } from '~/utils/session.server'
 
 import { ActionType } from '~/types/common'
-import type { Product, AlertNotification } from '~/types/common'
+import type {
+  Product,
+  AlertNotification,
+  BaseLoaderData,
+  Handle,
+} from '~/types/common'
+
+import type { LoaderData as AppLoaderData } from '../__app'
+
+type Pantry = z.infer<typeof productSchema>[]
 
 interface LoaderData {
   products: Product[]
   name: string
   notification?: AlertNotification
+}
+
+export const handle: Handle = {
+  id: 'pantry',
 }
 
 export const meta: MetaFunction = () => {
@@ -93,32 +104,45 @@ export const action: ActionFunction = async ({ request }) => {
     const session = await handleSession(request)
     const userId = session.getUserId()
 
+    invariant(userId, 'userId is not valid')
+
     if (actionType === ActionType.CREATE) {
+      const products = formData.get('products')
+
+      invariant(products, 'products is required')
+
+      await fillPantry({
+        products: JSON.parse(products as string) as Pantry,
+        userId,
+      })
+
+      session.instance.flash('notification', `Pantry has been filled`)
+
+      return redirect('/pantry', {
+        headers: {
+          'Set-Cookie': await session.commit(),
+        },
+      })
+    }
+
+    if (actionType === ActionType.EDIT) {
+      const productId = formData.get('productId')
       const name = formData.get('name')
       const number = formData.get('number')
-      const expiryDate = formData.get('expiryDate')
 
+      invariant(productId, 'productId is required')
       invariant(name, 'name is required')
-      invariant(
-        number && typeof Number(number) === 'number',
-        'number is required',
-      )
-      invariant(userId, 'userId is not valid')
+      invariant(number, 'number is required')
 
-      if (expiryDate) {
-        invariant(typeof expiryDate === 'string', 'expiryDate must be a string')
-      }
-
-      const product = await createProduct({
+      const updatedProduct = await updateProduct({
         name: String(name),
-        number: +number,
-        expiryDate: expiryDate ? new Date(expiryDate) : undefined,
-        userId,
+        number: Number(number),
+        productId: String(productId),
       })
 
       session.instance.flash(
         'notification',
-        `Product ${product.name || ''} has been created`,
+        `Product ${updatedProduct.name || ''} has been updated`,
       )
 
       return redirect('/pantry', {
@@ -161,6 +185,32 @@ export const CatchBoundary = () => {
   return <ErrorContainer status={status} />
 }
 
+const Header: FC = () => {
+  const currentRoute = useRouteData<BaseLoaderData>('pantry')
+  const appRoute = useRouteData<AppLoaderData>('app')
+  const name = appRoute?.user?.name?.split(' ')?.[0] || ''
+
+  return (
+    <Stack spacing={0} mb="sm">
+      <Text size="md" color="dimmed" transform="capitalize">
+        Hi {name},
+      </Text>
+      <Text
+        sx={theme => ({
+          fontSize: '2rem',
+          fontWeight: 'bold',
+          lineHeight: 1,
+          [theme.fn.smallerThan('sm')]: {
+            fontSize: '1.5rem',
+          },
+        })}
+      >
+        {currentRoute?.name}
+      </Text>
+    </Stack>
+  )
+}
+
 const PantryRoute = () => {
   const transition = useTransition()
   const [opened, setOpened] = useState(false)
@@ -171,29 +221,23 @@ const PantryRoute = () => {
   const optimisticProduct = {
     name: transition.submission?.formData.get('name'),
     number: transition.submission?.formData.get('number'),
-    expiryDate: transition.submission?.formData.get('expiryDate')
-      ? new Date(String(transition.submission?.formData.get('expiryDate')))
-      : null,
   }
   useNotification(notification)
 
   return (
-    <Container
-      fluid
-      px={0}
+    <RouteContainer
+      header={<Header />}
       sx={{
-        height: '100%',
-        display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
       }}
     >
       <Box
-        sx={theme => ({
+        pb="xl"
+        sx={{
           width: '100%',
-          maxWidth: 550,
-          paddingBottom: `${theme.spacing.xl}px`,
-        })}
+          maxWidth: '34.375rem',
+        }}
       >
         <Stack spacing={0}>
           <Group position="right" mb="lg">
@@ -204,7 +248,7 @@ const PantryRoute = () => {
               gradient={{ from: 'violet', to: 'grape', deg: 105 }}
               onClick={() => setOpened(true)}
             >
-              Add product
+              Create pantry
             </Button>
           </Group>
           <TextInput
@@ -227,10 +271,9 @@ const PantryRoute = () => {
                 ))}
                 {optimisticProduct.name ? (
                   <ProductCard
-                    id=""
+                    id="temporal-id"
                     name={String(optimisticProduct.name)}
                     number={Number(optimisticProduct.number)}
-                    expiryDate={optimisticProduct.expiryDate}
                   />
                 ) : null}
               </Stack>
@@ -248,7 +291,7 @@ const PantryRoute = () => {
         )}
       </Box>
       <AddProductModal opened={opened} onClose={() => setOpened(false)} />
-    </Container>
+    </RouteContainer>
   )
 }
 

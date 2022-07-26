@@ -11,6 +11,7 @@
     "db:push": "npx prisma db push",
     "db:connect": "pscale connect",
     "db:studio": "npx prisma studio",
+    "quirrel": "quirrel",
     "postinstall": "npx prisma generate"
   },
   "dependencies": {

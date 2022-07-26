@@ -30,7 +30,6 @@ const productSchema = z.object({
       required_error: 'Number is required',
     })
     .positive('Provided number is not valid'),
-  expiryDate: z.date().optional(),
 })
 
 const calculatorItemSchema = productSchema.merge(
@@ -47,10 +46,15 @@ const calculatorSchema = z.object({
   products: z.array(calculatorItemSchema),
 })
 
+const fillPantrySchema = z.object({
+  products: z.array(productSchema),
+})
+
 export {
   signInSchema,
   signUpSchema,
   productSchema,
   calculatorSchema,
   calculatorItemSchema,
+  fillPantrySchema,
 }
