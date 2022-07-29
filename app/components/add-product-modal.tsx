@@ -32,12 +32,6 @@ import NumberInput from './number-input'
 type FormValues = z.infer<typeof fillPantrySchema>
 
 const useStyles = createStyles(theme => ({
-  weekend: {
-    color: `${theme.colors.violet[6]} !important`,
-  },
-  selected: {
-    color: `${theme.white} !important`,
-  },
   modal: {
     minHeight: '100vh',
   },

@@ -12,7 +12,7 @@ import {
   useMantineTheme,
 } from '@mantine/core'
 
-import { Link, useFetcher, useLocation } from '@remix-run/react'
+import { Link, useFetcher } from '@remix-run/react'
 
 import { formatCurrency } from '~/utils/browser'
 
@@ -34,23 +34,21 @@ const ListCard: FC<ListCardProps> = ({
 }) => {
   const theme = useMantineTheme()
   const fetcher = useFetcher()
-  const location = useLocation()
   const date = dayjs(createdAt).format('MMMM DD, YYYY')
   const formattedTotal = formatCurrency(total)
   const productsNumber = _count?.products
   const isDeleting = fetcher.submission?.formData.get('listId') === id
-  const isSelected = location.pathname.includes(id)
 
   const onSubmit = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
     event.stopPropagation()
+    event.preventDefault()
 
     fetcher.submit(
       {
         listId: id,
       },
       {
-        action: '/groceries-history',
+        action: '/groceries-history?index',
         method: 'post',
       },
     )
@@ -64,11 +62,13 @@ const ListCard: FC<ListCardProps> = ({
         p="md"
         component={Link}
         prefetch="intent"
-        to={`/groceries-history/${id}`}
+        to={`${id}`}
         sx={theme => ({
           cursor: 'pointer',
-          borderColor: isSelected ? theme.colors.violet[6] : undefined,
           ':hover': {
+            borderColor: theme.colors.violet[6],
+          },
+          ':focus': {
             borderColor: theme.colors.violet[6],
           },
         })}
@@ -84,20 +84,18 @@ const ListCard: FC<ListCardProps> = ({
             </Text>
           </Stack>
           <Text>{formattedTotal}</Text>
-          <Group>
-            <ActionIcon
-              radius="md"
-              variant="default"
-              loading={isDeleting}
-              sx={{
-                backgroundColor: 'transparent',
-                border: 'none',
-              }}
-              onClick={onSubmit}
-            >
-              <Trash size={20} color={theme.colors.gray[6]} />
-            </ActionIcon>
-          </Group>
+          <ActionIcon
+            radius="md"
+            variant="default"
+            loading={isDeleting}
+            sx={{
+              backgroundColor: 'transparent',
+              border: 'none',
+            }}
+            onClick={onSubmit}
+          >
+            <Trash size={20} color={theme.colors.gray[6]} />
+          </ActionIcon>
         </Group>
       </Paper>
     </fetcher.Form>

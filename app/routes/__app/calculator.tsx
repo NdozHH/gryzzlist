@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { FC } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import type { Control } from 'react-hook-form'
-import { Receipt2 } from 'tabler-icons-react'
+import { Receipt2, Search } from 'tabler-icons-react'
 import invariant from 'tiny-invariant'
 import type { z } from 'zod'
 
@@ -27,16 +27,23 @@ import { useCatch, useFetcher, useLoaderData } from '@remix-run/react'
 
 import ErrorContainer from '~/components/error-container'
 import NumberInput from '~/components/number-input'
+import PantryContent from '~/components/pantry-content'
+import PantryModal from '~/components/pantry-modal'
 import RouteContainer from '~/components/route-container'
 
 import useNotification from '~/hooks/useNotification'
+import usePantrySearchFilter from '~/hooks/usePantrySearchFilter'
 
-import { createList, generateRandomString } from '~/utils/database.server'
+import {
+  createList,
+  generateRandomString,
+  getProducts,
+} from '~/utils/database.server'
 import { calculatorSchema } from '~/utils/form-schemas'
 import type { calculatorItemSchema } from '~/utils/form-schemas'
 import { handleSession } from '~/utils/session.server'
 
-import type { AlertNotification, Handle } from '~/types/common'
+import type { AlertNotification, Handle, Product } from '~/types/common'
 
 type FormValues = z.infer<typeof calculatorSchema>
 
@@ -49,6 +56,7 @@ type TotalProps = {
 interface LoaderData {
   name: string
   notification?: AlertNotification
+  pantry: Product[]
 }
 
 export const handle: Handle = {
@@ -64,7 +72,12 @@ export const meta: MetaFunction = () => {
 export const loader: LoaderFunction = async ({ request }) => {
   try {
     const session = await handleSession(request)
+    const userId = session.getUserId()
     const notification = session.instance.get('notification') || null
+
+    invariant(userId, 'userId is not valid')
+
+    const pantry = await getProducts(userId)
 
     return json<LoaderData>(
       {
@@ -77,6 +90,7 @@ export const loader: LoaderFunction = async ({ request }) => {
             }
           : {}),
         name: 'Calculator',
+        pantry,
       },
       {
         headers: {
@@ -162,7 +176,7 @@ const Total: FC<TotalProps> = ({ control }) => {
 const CalculatorRoute: FC = () => {
   const fetcher = useFetcher()
   const loaderData = useLoaderData<LoaderData>()
-  const { notification } = loaderData
+  const { notification, pantry } = loaderData
   const {
     register,
     control,
@@ -185,6 +199,8 @@ const CalculatorRoute: FC = () => {
     name: 'products',
     control,
   })
+  const [showPantryModal, setShowPantryModal] = useState(false)
+  const { filteredProducts, filter, setFilter } = usePantrySearchFilter(pantry)
   useNotification(notification)
   const hasOneItem = fields.length === 1
   const isSubmitting = fetcher.state === 'submitting'
@@ -214,6 +230,7 @@ const CalculatorRoute: FC = () => {
         price: undefined,
         number: 1,
       })
+      reset()
     }
   }
 
@@ -283,22 +300,33 @@ const CalculatorRoute: FC = () => {
           <Stack spacing={0}>
             <Group position="apart" pt="md" pb="lg">
               <Button
-                type="submit"
-                variant="outline"
+                onClick={() => setShowPantryModal(true)}
+                variant="subtle"
                 size="xs"
                 radius="md"
-                loading={isSubmitting}
               >
-                Save list
+                See pantry
               </Button>
               <Button
                 onClick={onAddProduct}
-                variant="gradient"
-                gradient={{ from: 'violet', to: 'grape', deg: 105 }}
+                variant="subtle"
                 size="xs"
                 radius="md"
               >
                 Add product
+              </Button>
+              <Button
+                type="submit"
+                variant="gradient"
+                gradient={{ from: 'violet', to: 'grape', deg: 105 }}
+                size="xs"
+                radius="md"
+                loading={isSubmitting}
+                sx={{
+                  minWidth: '6.25rem',
+                }}
+              >
+                Save list
               </Button>
             </Group>
             <Box
@@ -338,6 +366,17 @@ const CalculatorRoute: FC = () => {
                             enterKeyHint="done"
                             inputMode="decimal"
                             noClampOnBlur
+                            parser={inputValue =>
+                              inputValue?.replace(/\$\s?|(,*)/g, '')
+                            }
+                            formatter={inputValue =>
+                              !Number.isNaN(parseFloat(inputValue!))
+                                ? `$ ${inputValue}`.replace(
+                                    /\B(?=(\d{3})+(?!\d))/g,
+                                    ',',
+                                  )
+                                : '$'
+                            }
                             variant="default"
                             precision={2}
                             label={undefined}
@@ -386,6 +425,26 @@ const CalculatorRoute: FC = () => {
           </Stack>
         </fetcher.Form>
       </Box>
+      <PantryModal
+        opened={showPantryModal}
+        onClose={() => setShowPantryModal(false)}
+      >
+        <TextInput
+          mb="lg"
+          radius="md"
+          size="md"
+          variant="default"
+          placeholder="Search your products"
+          icon={<Search size={20} />}
+          value={filter}
+          onChange={event => setFilter(event.currentTarget.value)}
+        />
+        <PantryContent
+          isEmpty={pantry.length === 0}
+          products={filteredProducts}
+          hideDelete
+        />
+      </PantryModal>
     </RouteContainer>
   )
 }

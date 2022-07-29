@@ -4,11 +4,12 @@ import {
   Burger,
   Group,
   Header as MHeader,
-  Text,
   useMantineTheme,
 } from '@mantine/core'
 
 import Hidden from '~/components/hidden'
+
+import appLogo from '~/images/app_logo.png'
 
 import LoaderIndicator from './loader-indicator'
 import { useNavigationContext } from './navigation'
@@ -45,7 +46,7 @@ const Header: FC = () => {
             title="Open navigation"
             aria-label="Open navigation"
           />
-          <Text>Application header</Text>
+          <img src={appLogo} alt="GryzzList's logo" width={140} />
           <LoaderIndicator size="sm" />
         </Group>
       </MHeader>

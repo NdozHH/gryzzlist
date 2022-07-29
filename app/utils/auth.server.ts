@@ -1,5 +1,10 @@
 import { hash, compare } from 'bcrypt'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import {
+  confirmPasswordReset,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  verifyPasswordResetCode,
+} from 'firebase/auth'
 
 import { redirect } from '@remix-run/node'
 import type { Session } from '@remix-run/node'
@@ -160,6 +165,49 @@ const logout = async (request: Request) => {
   })
 }
 
+const resetPassword = async (email: string) => {
+  const user = await prisma.user.findFirst({
+    where: {
+      email,
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (user) {
+    await sendPasswordResetEmail(auth.client, email, {
+      url: `${process.env.APP_URL}/sign-in?email=${email}`,
+    })
+  }
+}
+
+const createNewPassword = async (
+  email: string,
+  password: string,
+  oobCode: string,
+) => {
+  const requestedEmail = await verifyPasswordResetCode(auth.client, oobCode)
+
+  if (email === requestedEmail) {
+    await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        password: {
+          update: {
+            hash: await hashPassword(password),
+          },
+        },
+      },
+    })
+    await confirmPasswordReset(auth.client, oobCode, password)
+    return true
+  }
+  return false
+}
+
 export {
   hashPassword,
   verifyPassword,
@@ -169,4 +217,6 @@ export {
   signIn,
   signUp,
   logout,
+  resetPassword,
+  createNewPassword,
 }

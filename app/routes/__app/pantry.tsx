@@ -16,13 +16,13 @@ import { useCatch, useLoaderData, useTransition } from '@remix-run/react'
 
 import AddProductModal from '~/components/add-product-modal'
 import ErrorContainer from '~/components/error-container'
-import ProductCard from '~/components/product-card'
+import PantryContent from '~/components/pantry-content'
 import RouteContainer from '~/components/route-container'
 
 import useNotification from '~/hooks/useNotification'
+import usePantrySearchFilter from '~/hooks/usePantrySearchFilter'
 import useRouteData from '~/hooks/useRouteData'
 
-import { getFilteredProducts } from '~/utils/browser'
 import {
   deleteProduct,
   fillPantry,
@@ -214,10 +214,10 @@ const Header: FC = () => {
 const PantryRoute = () => {
   const transition = useTransition()
   const [opened, setOpened] = useState(false)
-  const [filter, setFilter] = useState('')
   const loaderData = useLoaderData<LoaderData>()
   const { products, notification } = loaderData
-  const filteredProducts = getFilteredProducts(products, filter)
+  const { filteredProducts, filter, setFilter } =
+    usePantrySearchFilter(products)
   const optimisticProduct = {
     name: transition.submission?.formData.get('name'),
     number: transition.submission?.formData.get('number'),
@@ -262,33 +262,11 @@ const PantryRoute = () => {
             onChange={event => setFilter(event.currentTarget.value)}
           />
         </Stack>
-        {products.length > 0 ? (
-          <>
-            {filteredProducts.length > 0 ? (
-              <Stack>
-                {filteredProducts.map(product => (
-                  <ProductCard key={product.id} {...product} />
-                ))}
-                {optimisticProduct.name ? (
-                  <ProductCard
-                    id="temporal-id"
-                    name={String(optimisticProduct.name)}
-                    number={Number(optimisticProduct.number)}
-                  />
-                ) : null}
-              </Stack>
-            ) : (
-              <Stack align="center" mt="xl" spacing="sm">
-                <Search size={40} color="grey" />
-                <Text>There're no products matching your search query</Text>
-              </Stack>
-            )}
-          </>
-        ) : (
-          <Stack align="center" mt="xl" spacing="sm">
-            <Text>You don't have any products in your pantry yet</Text>
-          </Stack>
-        )}
+        <PantryContent
+          isEmpty={products.length === 0}
+          products={filteredProducts}
+          optimisticProduct={optimisticProduct}
+        />
       </Box>
       <AddProductModal opened={opened} onClose={() => setOpened(false)} />
     </RouteContainer>
