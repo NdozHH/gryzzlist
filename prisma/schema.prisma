@@ -25,31 +25,42 @@ model User {
 model Password {
   hash   String @unique
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Product {
-  id         String    @id @default(cuid())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
-  name       String
-  number     Int
-  price      Float?
-  expiryDate DateTime?
-  userId     String    @map("ownerId")
-  user       User      @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: Cascade)
-  listId     String?
-  list       List?     @relation(fields: [listId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String
+  number    Int
+  userId    String   @map("ownerId")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([name])
+  @@index([userId])
+}
+
+model ListProduct {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String
+  number    Int
+  price     Float
+  listId    String?
+  list      List?    @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@index([listId])
 }
 
 model List {
-  id        String    @id @default(cuid())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
+  id        String        @id @default(cuid())
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
   total     Float
-  products  Product[]
-  userId    String    @map("ownerId")
-  user      User      @relation(fields: [userId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  products  ListProduct[]
+  userId    String        @map("ownerId")
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

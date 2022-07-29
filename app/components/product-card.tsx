@@ -18,6 +18,7 @@ import type { MenuItemProps } from '@mantine/core'
 
 import { useFetcher } from '@remix-run/react'
 
+import { formatCurrency } from '~/utils/browser'
 import { productSchema } from '~/utils/form-schemas'
 
 import { ActionType } from '~/types/common'
@@ -27,6 +28,7 @@ import NumberInput from './number-input'
 
 type ProductCardProps = Omit<Product, 'price'> & {
   hideDelete?: boolean
+  price?: number
 }
 
 type ItemProps = Omit<MenuItemProps<'button'>, 'children'> & {
@@ -85,6 +87,7 @@ const ProductCard: FC<ProductCardProps> = ({
   name,
   number,
   hideDelete = false,
+  price,
 }) => {
   const { classes } = useStyles()
   const fetcher = useFetcher()
@@ -215,6 +218,7 @@ const ProductCard: FC<ProductCardProps> = ({
               />
             )}
           </Group>
+          {price ? <Text>{formatCurrency(price)}</Text> : null}
           {!hideDelete ? (
             <Group position="center">
               {editMode ? (

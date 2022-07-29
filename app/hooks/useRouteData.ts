@@ -5,7 +5,7 @@ const useRouteData = <LoaderData>(handleId?: string) => {
   const match = matches.find(({ handle }) => handle?.id === handleId)
 
   if (!match) {
-    return undefined
+    return null
   }
 
   return match.data as LoaderData

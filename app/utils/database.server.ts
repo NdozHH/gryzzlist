@@ -59,7 +59,6 @@ const getProducts = async (userId: string) => {
       id: true,
       name: true,
       number: true,
-      price: true,
     },
   })
 
@@ -101,19 +100,22 @@ const updateProduct = async ({
 }
 
 const createList = async ({ products, total, userId }: ListValues) => {
-  const list = await prisma.list.create({
+  const list = prisma.list.create({
     data: {
       userId,
       total,
       products: {
         createMany: {
-          data: products.map(product => ({ ...product, userId })),
+          data: products.map(product => ({ ...product })),
         },
       },
     },
   })
+  const pantryProducts = prisma.product.createMany({
+    data: products.map(({ name, number }) => ({ userId, name, number })),
+  })
 
-  return list
+  await Promise.all([list, pantryProducts])
 }
 
 const getLists = async (userId: string) => {
@@ -148,24 +150,25 @@ const deleteList = async (listId: string) => {
 }
 
 const getListProducts = async (listId: string) => {
-  const list = await prisma.list.findUnique({
+  const list = await prisma.list.findFirst({
     where: {
       id: listId,
     },
     select: {
+      createdAt: true,
+      total: true,
       products: {
         select: {
           id: true,
           name: true,
           number: true,
-          expiryDate: true,
           price: true,
         },
       },
     },
   })
 
-  return list?.products
+  return list
 }
 
 const getUser = async (userId: string) => {

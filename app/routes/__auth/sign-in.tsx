@@ -25,11 +25,14 @@ import {
   Form,
   Link,
   useActionData,
+  useLoaderData,
   useSubmit,
   useTransition,
 } from '@remix-run/react'
 
 import Alert from '~/components/alert'
+
+import useNotification from '~/hooks/useNotification'
 
 import { decodeBase64, signIn, verifySessionCookie } from '~/utils/auth.server'
 import { generateRandomString } from '~/utils/database.server'
@@ -39,6 +42,10 @@ import { handleSession } from '~/utils/session.server'
 import type { AlertNotification } from '~/types/common'
 
 type FormValues = z.infer<typeof signInSchema>
+
+interface LoaderData {
+  notification?: AlertNotification
+}
 
 interface ActionData {
   error?: AlertNotification
@@ -52,16 +59,37 @@ export const meta: MetaFunction = () => {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await handleSession(request)
+  const notification = session.instance.get('notification') || null
   const { uid } = await verifySessionCookie(session.instance)
-  const headers = {
-    'Set-Cookie': await session.commit(),
-  }
 
   if (uid) {
-    return redirect('/pantry', { headers })
+    return redirect('/pantry', {
+      headers: {
+        'Set-Cookie': await session.commit(),
+      },
+    })
   }
 
-  return json(null, { headers })
+  return json<LoaderData>(
+    {
+      ...(notification
+        ? {
+            notification: {
+              id: generateRandomString(),
+              message: notification,
+              config: {
+                autoClose: false,
+              },
+            },
+          }
+        : {}),
+    },
+    {
+      headers: {
+        'Set-Cookie': await session.commit(),
+      },
+    },
+  )
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -116,6 +144,8 @@ export const action: ActionFunction = async ({ request }) => {
 
 const SignInRoute: FC = () => {
   const transition = useTransition()
+  const loaderData = useLoaderData<LoaderData>()
+  const { notification } = loaderData
   const actionData = useActionData<ActionData>()
   const { error } = actionData || {}
   const { register, handleSubmit, formState } = useForm<FormValues>({
@@ -127,6 +157,7 @@ const SignInRoute: FC = () => {
   })
   const { errors } = formState
   const submit = useSubmit()
+  useNotification(notification)
   const isSubmitting = transition.state === 'submitting'
 
   const onSubmit = ({ email, password }: FormValues) => {
@@ -160,7 +191,7 @@ const SignInRoute: FC = () => {
       >
         <Alert content={error} />
         <Paper
-          radius="md"
+          radius="lg"
           p="md"
           withBorder
           sx={{
@@ -185,19 +216,32 @@ const SignInRoute: FC = () => {
                 error={errors?.email?.message}
                 {...register('email')}
               />
-              <PasswordInput
-                id="password"
-                placeholder="Enter your password"
-                autoComplete="current-password"
-                label="Password"
-                radius="md"
-                variant="default"
-                size="sm"
-                required
-                error={errors?.password?.message}
-                {...register('password')}
-              />
-              <Group position="center">
+              <Stack spacing="xs">
+                <PasswordInput
+                  id="password"
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  label="Password"
+                  radius="md"
+                  variant="default"
+                  size="sm"
+                  required
+                  error={errors?.password?.message}
+                  {...register('password')}
+                />
+                <Group position="right">
+                  <Text
+                    variant="link"
+                    component={Link}
+                    to="/reset-password"
+                    color="violet"
+                    size="sm"
+                  >
+                    Forgot password?
+                  </Text>
+                </Group>
+              </Stack>
+              <Group position="center" mt="lg">
                 <Button
                   type="submit"
                   loading={isSubmitting}

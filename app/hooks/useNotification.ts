@@ -1,4 +1,4 @@
-import { useDidUpdate } from '@mantine/hooks'
+import { useShallowEffect } from '@mantine/hooks'
 import { useNotifications } from '@mantine/notifications'
 
 import type { AlertNotification } from '~/types/common'
@@ -9,18 +9,20 @@ const useNotification = (
   content: NotificationContent = {
     message: '',
     id: '',
+    config: {},
   },
 ) => {
   const { showNotification: showMNotification } = useNotifications()
-  const { id, message } = content
+  const { id, message, config } = content
 
-  useDidUpdate(() => {
+  useShallowEffect(() => {
     if (!message) return
 
     showMNotification({
-      id,
       color: 'violet',
       radius: 'md',
+      ...config,
+      id,
       message,
     })
   }, [message, id])

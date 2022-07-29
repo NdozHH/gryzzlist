@@ -21,6 +21,18 @@ const signUpSchema = z.object({
   }),
 })
 
+const resetPasswordSchema = z.object({
+  email: z.string().email({
+    message: 'Provided email is not valid',
+  }),
+})
+
+const newPasswordSchema = z.object({
+  password: z.string().min(10, {
+    message: 'Provided password is too short',
+  }),
+})
+
 const productSchema = z.object({
   name: z.string().min(1, {
     message: 'Provided name is too short',
@@ -53,6 +65,8 @@ const fillPantrySchema = z.object({
 export {
   signInSchema,
   signUpSchema,
+  resetPasswordSchema,
+  newPasswordSchema,
   productSchema,
   calculatorSchema,
   calculatorItemSchema,

@@ -1,64 +1,91 @@
+import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { ChevronLeft } from 'tabler-icons-react'
 import invariant from 'tiny-invariant'
 
-import { Box, Stack, Text, useMantineTheme } from '@mantine/core'
+import { Box, Button, Group, Stack, Text, useMantineTheme } from '@mantine/core'
 
 import { json } from '@remix-run/node'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { Link, useCatch, useLoaderData } from '@remix-run/react'
 
 import ErrorContainer from '~/components/error-container'
 import ProductCard from '~/components/product-card'
 import RouteContainer from '~/components/route-container'
 
+import useImageMediaQuery from '~/hooks/useImageMediaQuery'
 import useRouteData from '~/hooks/useRouteData'
 
+import { formatCurrency } from '~/utils/browser'
 import { getListProducts } from '~/utils/database.server'
 import { handleSession } from '~/utils/session.server'
 
-import type { BaseLoaderData, Handle, Product } from '~/types/common'
+import emptyList from '~/images/404.svg'
+import type { Handle, ListDetail } from '~/types/common'
 
 interface LoaderData {
   name: string
-  products: Product[] | undefined
+  list: ListDetail | null
 }
 
 export const handle: Handle = {
   id: 'list-detail',
 }
 
-export const loader: LoaderFunction = async ({ request, params }) => {
-  try {
-    const { listId } = params
-    const session = await handleSession(request)
-    const userId = session.getUserId()
-
-    invariant(userId, 'userId is not valid')
-    invariant(listId, 'listId is not valid')
-
-    const products = await getListProducts(listId)
-
-    return json<LoaderData>({
-      name: 'List',
-      products,
-    })
-  } catch (error) {
-    throw new Response('Unexpected error', {
-      status: 500,
-    })
+export const meta: MetaFunction = () => {
+  return {
+    title: 'List detail | GryzzList',
   }
 }
 
-export const CatchBoundary = () => {
-  const { status } = useCatch()
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const { listId } = params
+  const session = await handleSession(request)
+  const userId = session.getUserId()
 
-  return <ErrorContainer status={status} />
+  invariant(userId, 'userId is not valid')
+  invariant(listId, 'listId is not valid')
+
+  const list = await getListProducts(listId)
+
+  if (!list) {
+    throw new Response(`There's no list for the id: ${listId}`, {
+      status: 404,
+    })
+  }
+
+  return json<LoaderData>({
+    name: 'List detail',
+    list,
+  })
+}
+
+export const CatchBoundary = () => {
+  const { status, data } = useCatch()
+
+  return (
+    <ErrorContainer
+      status={status}
+      description={data}
+      action={
+        <Button
+          component={Link}
+          to="/groceries-history"
+          radius="md"
+          size="md"
+          variant="gradient"
+          gradient={{ from: 'violet', to: 'grape', deg: 105 }}
+        >
+          Return to history
+        </Button>
+      }
+    />
+  )
 }
 
 const Header: FC = () => {
   const theme = useMantineTheme()
-  const currentRoute = useRouteData<BaseLoaderData>('list-detail')
+  const currentRoute = useRouteData<LoaderData>('list-detail')
 
   return (
     <Stack spacing={0} mb="sm">
@@ -96,9 +123,12 @@ const Header: FC = () => {
 }
 
 const ListDetailRoute: FC = () => {
+  const smallImageQuery = useImageMediaQuery('sm')
   const loaderData = useLoaderData<LoaderData>()
-  const { products } = loaderData
-  const isEmpty = products?.length === 0
+  const { list } = loaderData
+  const date = dayjs(list?.createdAt).format('MMMM DD, YYYY')
+  const formattedTotal = formatCurrency(list?.total || 0)
+  const isEmpty = list?.products.length === 0
 
   return (
     <RouteContainer
@@ -118,13 +148,27 @@ const ListDetailRoute: FC = () => {
         }}
       >
         {!isEmpty ? (
-          <>
-            {products?.map(product => (
+          <Stack spacing="lg">
+            <Group position="apart">
+              <Text size="lg">Created at: {date}</Text>
+              <Text size="lg">{formattedTotal}</Text>
+            </Group>
+            {list?.products.map(product => (
               <ProductCard key={product.id} hideDelete {...product} />
             ))}
-          </>
+          </Stack>
         ) : (
-          <Text>You don't have any selected list</Text>
+          <Stack align="center" mt="xl" spacing="sm">
+            <img
+              srcSet={`${emptyList} 890w`}
+              sizes={`${smallImageQuery} 260px, 330px`}
+              src={emptyList}
+              alt="A woman standing next to a cell phone with list items"
+            />
+            <Text mt="md" size="xl">
+              Sorry, this list doesn't exist
+            </Text>
+          </Stack>
         )}
       </Stack>
     </RouteContainer>

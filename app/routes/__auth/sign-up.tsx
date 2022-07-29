@@ -162,7 +162,7 @@ const SignUpRoute: FC = () => {
       >
         <Alert content={error} />
         <Paper
-          radius="md"
+          radius="lg"
           p="md"
           withBorder
           sx={{
