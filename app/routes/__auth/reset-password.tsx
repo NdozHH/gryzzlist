@@ -66,6 +66,7 @@ export const action: ActionFunction = async ({ request }) => {
       },
     })
   } catch (error) {
+    console.log('❌', error)
     return json<ActionData>(
       {
         error: {
