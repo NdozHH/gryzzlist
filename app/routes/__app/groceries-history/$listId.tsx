@@ -3,12 +3,13 @@ import type { FC } from 'react'
 import { ChevronLeft } from 'tabler-icons-react'
 import invariant from 'tiny-invariant'
 
-import { Box, Button, Group, Stack, Text, useMantineTheme } from '@mantine/core'
+import { Box, Group, Stack, Text, useMantineTheme } from '@mantine/core'
 
 import { json } from '@remix-run/node'
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { Link, useCatch, useLoaderData } from '@remix-run/react'
 
+import Button from '~/components/button'
 import ErrorContainer from '~/components/error-container'
 import ProductCard from '~/components/product-card'
 import RouteContainer from '~/components/route-container'
@@ -68,14 +69,7 @@ export const CatchBoundary = () => {
       status={status}
       description={data}
       action={
-        <Button
-          component={Link}
-          to="/groceries-history"
-          radius="md"
-          size="md"
-          variant="gradient"
-          gradient={{ from: 'violet', to: 'grape', deg: 105 }}
-        >
+        <Button component={Link} to="/groceries-history" radius="md" size="md">
           Return to history
         </Button>
       }

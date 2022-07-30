@@ -9,9 +9,8 @@ import {
 
 import Hidden from '~/components/hidden'
 
-import appLogo from '~/images/app_logo.png'
-
 import LoaderIndicator from './loader-indicator'
+import AppLogo from './logo'
 import { useNavigationContext } from './navigation'
 
 const Header: FC = () => {
@@ -46,7 +45,7 @@ const Header: FC = () => {
             title="Open navigation"
             aria-label="Open navigation"
           />
-          <img src={appLogo} alt="GryzzList's logo" width={140} />
+          <AppLogo width={140} />
           <LoaderIndicator size="sm" />
         </Group>
       </MHeader>

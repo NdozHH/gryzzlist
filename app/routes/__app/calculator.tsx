@@ -7,15 +7,7 @@ import { Receipt2, Search } from 'tabler-icons-react'
 import invariant from 'tiny-invariant'
 import type { z } from 'zod'
 
-import {
-  Box,
-  Button,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core'
+import { Box, Group, Paper, Stack, Text, TextInput } from '@mantine/core'
 
 import { json, redirect } from '@remix-run/node'
 import type {
@@ -25,6 +17,7 @@ import type {
 } from '@remix-run/node'
 import { useCatch, useFetcher, useLoaderData } from '@remix-run/react'
 
+import Button from '~/components/button'
 import ErrorContainer from '~/components/error-container'
 import NumberInput from '~/components/number-input'
 import PantryContent from '~/components/pantry-content'
@@ -317,8 +310,6 @@ const CalculatorRoute: FC = () => {
               </Button>
               <Button
                 type="submit"
-                variant="gradient"
-                gradient={{ from: 'violet', to: 'grape', deg: 105 }}
                 size="xs"
                 radius="md"
                 loading={isSubmitting}

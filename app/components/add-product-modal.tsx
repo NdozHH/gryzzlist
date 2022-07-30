@@ -8,7 +8,6 @@ import type { z } from 'zod'
 import {
   ActionIcon,
   Box,
-  Button,
   createStyles,
   Group,
   Modal,
@@ -27,6 +26,7 @@ import { fillPantrySchema } from '~/utils/form-schemas'
 
 import { ActionType } from '~/types/common'
 
+import Button from './button'
 import NumberInput from './number-input'
 
 type FormValues = z.infer<typeof fillPantrySchema>
@@ -92,6 +92,7 @@ const AddProductModal: FC<ModalProps> = props => {
         name: '',
         number: 1,
       })
+      reset()
     }
   }
 
@@ -140,8 +141,6 @@ const AddProductModal: FC<ModalProps> = props => {
             type="submit"
             radius="md"
             size={isMobile ? 'sm' : 'md'}
-            variant="gradient"
-            gradient={{ from: 'violet', to: 'grape', deg: 105 }}
             loading={isSubmitting}
             title="Save pantry"
           >

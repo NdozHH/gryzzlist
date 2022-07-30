@@ -5,7 +5,6 @@ import invariant from 'tiny-invariant'
 import type { z } from 'zod'
 
 import {
-  Button,
   Container,
   Group,
   Paper,
@@ -31,6 +30,7 @@ import {
 } from '@remix-run/react'
 
 import Alert from '~/components/alert'
+import Button from '~/components/button'
 
 import useNotification from '~/hooks/useNotification'
 
@@ -247,8 +247,6 @@ const SignInRoute: FC = () => {
                   loading={isSubmitting}
                   radius="md"
                   size="md"
-                  variant="gradient"
-                  gradient={{ from: 'violet', to: 'grape', deg: 105 }}
                 >
                   Sign In
                 </Button>

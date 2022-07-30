@@ -1,34 +1,18 @@
-# Welcome to Remix!
+# Welcome to GryzzList
 
-- [Remix Docs](https://remix.run/docs)
+## Acknowledgments
 
-## Deployment
+Thanks to [PlanetScale](https://planetscale.com/?utm_source=hashnode&utm_medium=hackathon&utm_campaign=announcement_article) and [Hashnode](https://hashnode.com/?source=planetscale_hackathon_announcement) for sponsoring and encouraging this hackathon, it has been an incredible experience to learn a lot.
 
-After having run the `create-remix` command and selected "Vercel" as a deployment target, you only need to [import your Git repository](https://vercel.com/new) into Vercel, and it will be deployed.
+## Description
 
-If you'd like to avoid using a Git repository, you can also deploy the directory by running [Vercel CLI](https://vercel.com/cli):
+[GryzzList](https://gryzzlist.vercel.app/) is an application that allows you to manage the products in your pantry with ease, so you will always know what you have and what you need.
 
-```sh
-npm i -g vercel
-vercel
-```
+## Tech stack
 
-It is generally recommended to use a Git repository, because future commits will then automatically be deployed by Vercel, through its [Git Integration](https://vercel.com/docs/concepts/git).
+The project is built with [Remix](https://remix.run/) framework, the database is [PlanetScale](https://planetscale.com/) and is deployed on [Vercel](https://vercel.com/). In addition, the following amazing open source projects were also used:
 
-## Development
-
-To run your Remix app locally, make sure your project's local dependencies are installed:
-
-```sh
-npm install
-```
-
-Afterwards, start the Remix development server like so:
-
-```sh
-npm run dev
-```
-
-Open up [http://localhost:3000](http://localhost:3000) and you should be ready to go!
-
-If you're used to using the `vercel dev` command provided by [Vercel CLI](https://vercel.com/cli) instead, you can also use that, but it's not needed.
+- [Mantine](https://mantine.dev/): react components library
+- [Prisma](https://www.prisma.io/): the ORM
+- [React hook form](https://react-hook-form.com/): handling forms with ease
+- [Firebase](https://firebase.google.com/?hl=es): control the authentication flow

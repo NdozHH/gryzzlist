@@ -4,15 +4,7 @@ import { useForm } from 'react-hook-form'
 import invariant from 'tiny-invariant'
 import type { z } from 'zod'
 
-import {
-  Button,
-  Container,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core'
+import { Container, Paper, Stack, Text, TextInput } from '@mantine/core'
 
 import { json, redirect } from '@remix-run/node'
 import type { ActionFunction, MetaFunction } from '@remix-run/node'
@@ -25,6 +17,7 @@ import {
 } from '@remix-run/react'
 
 import Alert from '~/components/alert'
+import Button from '~/components/button'
 
 import { resetPassword } from '~/utils/auth.server'
 import { generateRandomString } from '~/utils/database.server'
@@ -66,7 +59,6 @@ export const action: ActionFunction = async ({ request }) => {
       },
     })
   } catch (error) {
-    console.log('❌', error)
     return json<ActionData>(
       {
         error: {
@@ -151,7 +143,15 @@ const ResetPasswordRoute: FC = () => {
                 error={errors?.email?.message}
                 {...register('email')}
               />
-              <Group position="apart" mt="lg">
+              <Stack align="center" mt="lg">
+                <Button
+                  type="submit"
+                  loading={isSubmitting}
+                  radius="md"
+                  size="md"
+                >
+                  Reset password
+                </Button>
                 <Button
                   component={Link}
                   to="/sign-in"
@@ -161,17 +161,7 @@ const ResetPasswordRoute: FC = () => {
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  loading={isSubmitting}
-                  radius="md"
-                  size="md"
-                  variant="gradient"
-                  gradient={{ from: 'violet', to: 'grape', deg: 105 }}
-                >
-                  Reset password
-                </Button>
-              </Group>
+              </Stack>
             </Stack>
           </Form>
         </Paper>

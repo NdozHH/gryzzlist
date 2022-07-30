@@ -4,7 +4,7 @@ import { Search } from 'tabler-icons-react'
 import invariant from 'tiny-invariant'
 import type { z } from 'zod'
 
-import { Box, Button, Group, Stack, Text, TextInput } from '@mantine/core'
+import { Box, Group, Stack, Text, TextInput } from '@mantine/core'
 
 import { redirect, json } from '@remix-run/node'
 import type {
@@ -15,6 +15,7 @@ import type {
 import { useCatch, useLoaderData, useTransition } from '@remix-run/react'
 
 import AddProductModal from '~/components/add-product-modal'
+import Button from '~/components/button'
 import ErrorContainer from '~/components/error-container'
 import PantryContent from '~/components/pantry-content'
 import RouteContainer from '~/components/route-container'
@@ -241,13 +242,7 @@ const PantryRoute = () => {
       >
         <Stack spacing={0}>
           <Group position="right" mb="lg">
-            <Button
-              radius="md"
-              size="sm"
-              variant="gradient"
-              gradient={{ from: 'violet', to: 'grape', deg: 105 }}
-              onClick={() => setOpened(true)}
-            >
+            <Button radius="md" size="sm" onClick={() => setOpened(true)}>
               Create pantry
             </Button>
           </Group>
