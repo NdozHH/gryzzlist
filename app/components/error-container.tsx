@@ -1,6 +1,8 @@
 import type { FC, ReactNode } from 'react'
 
-import { Box, Button, Container, Group, Text, Title } from '@mantine/core'
+import { Box, Container, Group, Text, Title } from '@mantine/core'
+
+import Button from './button'
 
 interface ErrorContainerProps {
   status?: number
@@ -81,13 +83,7 @@ const ErrorContainer: FC<ErrorContainerProps> = ({
       </Text>
       <Group position="center">
         {action || (
-          <Button
-            radius="md"
-            size="md"
-            variant="gradient"
-            gradient={{ from: 'violet', to: 'grape', deg: 105 }}
-            onClick={onRefresh}
-          >
+          <Button radius="md" size="md" onClick={onRefresh}>
             Refresh the page
           </Button>
         )}

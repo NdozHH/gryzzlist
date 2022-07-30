@@ -4,7 +4,6 @@ import invariant from 'tiny-invariant'
 import type { z } from 'zod'
 
 import {
-  Button,
   Container,
   Group,
   Paper,
@@ -28,6 +27,7 @@ import {
 } from '@remix-run/react'
 
 import Alert from '~/components/alert'
+import Button from '~/components/button'
 
 import { createNewPassword, decodeBase64 } from '~/utils/auth.server'
 import { generateRandomString } from '~/utils/database.server'
@@ -278,8 +278,6 @@ const NewPasswordRoute = () => {
                   loading={isSubmitting}
                   radius="md"
                   size="md"
-                  variant="gradient"
-                  gradient={{ from: 'violet', to: 'grape', deg: 105 }}
                 >
                   Create password
                 </Button>

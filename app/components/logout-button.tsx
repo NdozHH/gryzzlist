@@ -1,8 +1,8 @@
 import type { FC } from 'react'
 
-import { Button } from '@mantine/core'
-
 import { useFetcher } from '@remix-run/react'
+
+import Button from './button'
 
 const LogoutButton: FC = () => {
   const fetcher = useFetcher()
