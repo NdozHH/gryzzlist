@@ -16,3 +16,4 @@ The project is built with [Remix](https://remix.run/) framework, the database is
 - [Prisma](https://www.prisma.io/): the ORM
 - [React hook form](https://react-hook-form.com/): handling forms with ease
 - [Firebase](https://firebase.google.com/?hl=es): control the authentication flow
+- [remix-pwa](https://github.com/ShafSpecs/remix-pwa): add PWA capabilities
